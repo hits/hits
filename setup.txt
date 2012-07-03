@@ -7,5 +7,12 @@ easy_install pip
 sudo apt-get install libpq-dev python-dev
 pip install Django dj-database-url psycopg2
 django-admin.py startproject $PNAME
+cd $PNAME
 
+# Start test server:
+python manage.py runserver 0.0.0.0:8000
+
+# ... then browse to Web server location http://<ip>:8000 where <ip>
+#  is the public IP address.  Make sure port 8000 is open if not
+#  browsing locally.
 
