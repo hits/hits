@@ -1,3 +1,23 @@
+
+# Postgres:
+#installed postgres 9.0 on mac w/ macports
+#Following Aron Bedra's Heroku + postgresql note:
+#https://devcenter.heroku.com/articles/clojure-web-application
+
+initdb pg
+postgres -D pg &
+createdb hits
+
+export DATABASE_URL=postgresql://localhost:5432/hits
+
+# ... test w/ repl:
+lein repl
+# All his examples worked for me
+
+
+### OLD Django stuff, disregard:
+
+
 # https://devcenter.heroku.com/articles/django
 export PNAME=hits
 mkdir $PNAME && cd $PNAME
