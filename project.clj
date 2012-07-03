@@ -1,4 +1,5 @@
 (defproject hits "0.0.1"
+  :main hits.core
   :dependencies
   [[org.clojure/clojure "1.2.1"]
    [postgresql/postgresql "8.4-702.jdbc4"]
