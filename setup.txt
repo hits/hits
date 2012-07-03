@@ -23,25 +23,6 @@ lein run -m hits.models.migration
 # Enable Heroku database (free up to 5 MB)
 heroku addons:add shared-database
 
-
-### OLD Django stuff, disregard:
-
-
-# https://devcenter.heroku.com/articles/django
-export PNAME=hits
-mkdir $PNAME && cd $PNAME
-virtualenv venv
-source venv/bin/activate
-easy_install pip
-sudo apt-get install libpq-dev python-dev
-pip install Django dj-database-url psycopg2
-django-admin.py startproject $PNAME
-cd $PNAME
-
-# Start test server:
-python manage.py runserver 0.0.0.0:8000
-
-# ... then browse to Web server location http://<ip>:8000 where <ip>
-#  is the public IP address.  Make sure port 8000 is open if not
-#  browsing locally.
+# Create table(s):
+heroku run lein run -m hits.models.migration
 
