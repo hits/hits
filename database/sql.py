@@ -24,7 +24,6 @@ def insert_statement(d, table_name):
     keys = sorted(d.keys())
     values = [d[key] for key in keys]
 
-
     return "INSERT INTO %s\n(%s)\nVALUES\n(%s);"%(
             table_name,
             ', '.join(keys),
