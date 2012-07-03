@@ -17,11 +17,27 @@ def chain(*fns):
     return fn
 
 
+def parenthesize(s):
+    return "(%s)"%s
+
 def insert_statement(d, table_name):
     keys = sorted(d.keys())
     values = [d[key] for key in keys]
+
 
     return "INSERT INTO %s\n(%s)\nVALUES\n(%s);"%(
             table_name,
             ', '.join(keys),
             ', '.join(map(chain(sanitize, stringify), values)))
+
+def insert_many_statement(ds, table_name):
+    keys = sorted(ds[0].keys())
+    values = ',\n'.join(
+        [parenthesize(', '.join(map(chain(sanitize, stringify),
+                                [d[key] for key in keys])))
+                      for d in ds])
+
+    return "INSERT INTO %s\n(%s)\nVALUES\n%s;"%(
+            table_name,
+            ', '.join(keys),
+            values)
