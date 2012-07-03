@@ -1,0 +1,11 @@
+# https://devcenter.heroku.com/articles/django
+export PNAME=hits
+mkdir $PNAME && cd $PNAME
+virtualenv venv
+source venv/bin/activate
+easy_install pip
+sudo apt-get install libpq-dev python-dev
+pip install Django dj-database-url psycopg2
+django-admin.py startproject $PNAME
+
+
