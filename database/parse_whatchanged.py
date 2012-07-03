@@ -25,10 +25,11 @@ def parse_commit(s):
     return id, tuple(parse_line(line) for line in lines[1:] if line.strip())
 
 def whatchanged_sql_insert_statements():
-    from sql import insert_statement
-    insert_commit_actions = lambda x : insert_statement(x, "Commit_actions")
+    from sql import insert_statement, insert_many_statement
     stream = ({"id":commit, "action":action, "path":path}
                 for commit, path_list in whatchanged()
                 for action, path in path_list)
 
-    return '\n\n'.join(map(insert_commit_actions, stream))
+    return insert_many_statement(list(stream), "Commit_actions")
+    # insert_commit_actions = lambda x : insert_statement(x, "Commit_actions")
+    # return '\n\n'.join(map(insert_commit_actions, stream))
