@@ -14,8 +14,14 @@ export DATABASE_URL=postgresql://localhost:5432/hits
 lein repl
 # All his examples worked for me
 
-Testing locally:
+# Testing locally:
 foreman start
+
+# Create the table locally:
+lein run -m hits.models.migration
+
+# Enable Heroku database (free up to 5 MB)
+heroku addons:add shared-database
 
 
 ### OLD Django stuff, disregard:
