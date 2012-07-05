@@ -4,10 +4,10 @@
 #Following Aron Bedra's Heroku + postgresql note:
 #https://devcenter.heroku.com/articles/clojure-web-application
 
+# Set up a server
 initdb pg
 postgres -D pg &
 createdb hits
-
 export DATABASE_URL=postgresql://localhost:5432/hits
 
 # ... test w/ repl:
@@ -16,6 +16,18 @@ lein repl
 
 # Testing locally:
 foreman start
+
+# Postgres on Ubuntu:
+# -- Local
+sudo apt-get install postgresql  libpq-dev
+createdb hits
+psql hits # Open this database in a terminal
+
+# -- Set up a server
+# http://linuxpoison.blogspot.com/2012/01/how-to-install-configure-postgresql.html
+# Also need to add which hosts we trust
+# This is in the file /etc/postgresql/9.1/main/pg_hba.conf
+# http://www.cyberciti.biz/faq/postgresql-remote-access-or-connection/
 
 # Create the table locally:
 lein run -m hits.models.migration

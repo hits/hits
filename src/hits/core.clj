@@ -19,5 +19,5 @@
   (ring/run-jetty #'application {:port (or port 8080) :join? false}))
 
 (defn -main []
-  (let [port (Integer. (System/getenv "PORT"))]
-        (start port)))
+  (let [port 8080]  ; This should change -- was (Integer. (System/getenv "PORT"))]
+    (start port)))
