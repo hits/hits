@@ -1,1 +1,1 @@
-web: lein run -m demo.web
+web: lein trampoline run -m hits.core
