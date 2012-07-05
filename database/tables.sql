@@ -13,5 +13,5 @@ CREATE TABLE Commit_log
     id           Varchar(40) PRIMARY KEY,
     subject      Varchar(80),
     timestamp    long,
-    body         Varchar(256)
+    body         text 
 );
