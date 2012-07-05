@@ -10,6 +10,15 @@ createdb hits
 
 export DATABASE_URL=postgresql://localhost:5432/hits
 
+# Postgres on Ubuntu:
+sudo apt-get install postgresql  libpq-dev
+sudo -u postgres createuser --superuser hits # create user 
+sudo -u postgres psql postgres # run postgres command line
+\password hits # change password for user hits
+createdb hitsdb
+psql hitsdb # use this database
+
+
 # ... test w/ repl:
 lein repl
 # All his examples worked for me
