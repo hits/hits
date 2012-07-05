@@ -25,5 +25,5 @@ def log():
 def log_sql_insert_statements():
     from sql import insert_statement, insert_many_statement
     return insert_many_statement(list(log()), "Commit_log")
-    # insert_commit_log = lambda x : insert_statement(x, "Commit_log")
-    # return '\n\n'.join(map(insert_commit_log, log()))
+    insert_commit_log = lambda x : insert_statement(x, "Commit_log")
+    return '\n\n'.join(map(insert_commit_log, log()))

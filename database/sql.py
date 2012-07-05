@@ -1,5 +1,7 @@
 import re
 
+git_encoding = 'latin-1'
+
 def mysql_stringify(s):
     return '"%s"'%s
 def postgres_stringify(s):
@@ -24,6 +26,9 @@ def chain(*fns):
 def parenthesize(s):
     return "(%s)"%s
 
+def decode(s):
+    return s.decode(git_encoding)
+
 def insert_statement(d, table_name, sanitize  = postgres_sanitize,
                                     stringify = postgres_stringify):
     keys = sorted(d.keys())
@@ -39,7 +44,7 @@ def insert_many_statement(ds, table_name, sanitize  = postgres_sanitize,
                                           stringify = postgres_stringify):
     keys = sorted(ds[0].keys())
     values = ',\n'.join(
-        [parenthesize(', '.join(map(chain(sanitize, stringify),
+        [parenthesize(', '.join(map(chain(sanitize, stringify, decode),
                                 [d[key] for key in keys])))
                       for d in ds])
 
