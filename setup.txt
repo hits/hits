@@ -4,25 +4,27 @@
 #Following Aron Bedra's Heroku + postgresql note:
 #https://devcenter.heroku.com/articles/clojure-web-application
 
+# Set up a server
 initdb pg
 postgres -D pg &
 createdb hits
-
 export DATABASE_URL=postgresql://localhost:5432/hits
-
-# Postgres on Ubuntu:
-sudo apt-get install postgresql  libpq-dev
-sudo -u postgres createuser --superuser hits # create user 
-sudo -u postgres psql postgres # run postgres command line
-\password hits # change password for user hits
-createdb hitsdb
-psql hitsdb # use this database
-
 
 # ... test w/ repl:
 lein repl
 # All his examples worked for me
 
+# Postgres on Ubuntu:
+# -- Local
+sudo apt-get install postgresql  libpq-dev
+createdb hits
+psql hits # Open this database in a terminal
+
+# -- Set up a server
+# http://linuxpoison.blogspot.com/2012/01/how-to-install-configure-postgresql.html
+# Also need to add which hosts we trust
+# This is in the file /etc/postgresql/9.1/main/pg_hba.conf
+# http://www.cyberciti.biz/faq/postgresql-remote-access-or-connection/
 
 ### OLD Django stuff, disregard:
 
