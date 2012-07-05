@@ -2,7 +2,7 @@ import os
 import sys
 
 if __name__ == "__main__":
-    tablefile = open('./tables.sql')
+    tablefile = open('./postgresql.tables.sql')
     sys.stdout.write(tablefile.read())
 
     from parse_log import log_sql_insert_statements
