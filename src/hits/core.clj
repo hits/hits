@@ -7,7 +7,7 @@
 (def
   ^{:doc "FIXME: this should be a database model"}
   repos
-  [["mrocklin" "sypy"]
+  [["mrocklin" "sympy"]
    ["eigenhombre" "namejen"]
    ["clojure" "clojure"]
    ["django" "django"]])
