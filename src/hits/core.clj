@@ -1,23 +1,23 @@
 (ns hits.core
-  (:use [compojure.core :only [defroutes GET]])
-  (:require [compojure.route :as route]
-            [compojure.handler :as handler]
-            [ring.adapter.jetty :as ring]))
+  (:use noir.core)
+  (:use hiccup.core)
+  (:use hiccup.page-helpers)
+  (:require [noir.server :as server]))
 
-(defn app [req]
-  {:status 200
-   :headers {"Content-Type" "text/plain"}
-   :body "Hello from Clojure!\n"})
+(def
+  ^{:doc "FIXME: this should be a database model"}
+  repos
+  [["mrocklin" "sympy"]
+   ["eigenhombre" "namejen"]
+   ["clojure" "clojure"]
+   ["django" "django"]])
 
-(defroutes routes
-  (GET  "/" [] "it still works"))
-  ; (route/resources "/"))
+(defpage "/" []
+  (html [:h1 "Welcome to HITS (Hands in the Soup)"]
+        [:p [:b "Available repos:"]]
+        (map (fn [[name repo]] [:p (link-to "/" (str name "/" repo))]) repos)))
 
-(def application (handler/site routes))
-
-(defn start [port]
-  (ring/run-jetty #'application {:port (or port 8080) :join? false}))
 
 (defn -main []
-  (let [port 8080]  ; This should change -- was (Integer. (System/getenv "PORT"))]
-    (start port)))
+  (let [port (Integer. (get (System/getenv) "PORT" "8080"))]
+    (server/start port)))
