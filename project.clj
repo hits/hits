@@ -6,4 +6,5 @@
    [org.clojure/java.jdbc "0.1.1"]
    [ring/ring-jetty-adapter "0.3.10"]
    [compojure "0.6.4"]
-   [hiccup "0.3.6"]])
+   [hiccup "0.3.6"]
+   [clj-time "0.4.3"]])
