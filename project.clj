@@ -8,4 +8,6 @@
    [org.clojure/java.jdbc "0.1.1"]
    [postgresql/postgresql "8.4-702.jdbc4"]
    [ring/ring-jetty-adapter "0.3.10"]
-   [clj-time "0.4.3"]])
+   [clj-time "0.4.3"]]
+  :dev-dependencies
+  [[lein-autoexpect "0.1.2"]])
