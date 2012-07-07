@@ -1,0 +1,5 @@
+classes/
+lib/
+.lein-deps-sum
+.lein-plugins/
+
