@@ -1,5 +1,6 @@
 (ns hits.core
   (:use [compojure.core :only [defroutes GET]])
+  (:use expectations)
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
             [ring.adapter.jetty :as ring]))

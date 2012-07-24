@@ -1,4 +1,5 @@
 (ns hits.models.action
+  (:use expectations)
   (:require [clojure.java.jdbc :as sql]))
 
 (defn hits-query [query]
