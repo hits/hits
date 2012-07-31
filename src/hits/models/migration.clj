@@ -4,7 +4,7 @@
   (:require [clj-time.format :as timef])
   (:require [clj-time.coerce :as timec]))
 
-(def conn (System/getenv "DATABASE_URL"))
+(def DB_URL (System/getenv "DATABASE_URL"))
 
 (defn db-get-tables []
   (into []
@@ -17,7 +17,7 @@
   (map :table_name (db-get-tables)))
 
 (defn create-actions []
-  (sql/with-connection conn
+  (sql/with-connection DB_URL
     (when-not (some #{"actions"} (table-names))
       (sql/create-table :actions
                         [:id "varchar(40)"]
@@ -25,19 +25,19 @@
                         [:path "text"]))))
 
 (defn drop-table [name]
-  (sql/with-connection conn
+  (sql/with-connection DB_URL
     (sql/drop-table name)))
 
 (defn test-action-insert []
-  (sql/with-connection conn
+  (sql/with-connection DB_URL
     (sql/insert-record :actions {:id "0987135", :action "TEST", :path "/dev/null"})))
 
 (defn select-all [table]
-  (sql/with-connection conn
-    (sql/with-query-results results [(format "select * from %s" table)] 
+  (sql/with-connection DB_URL
+    (sql/with-query-results results [(format "select * from %s" table)]
                             (into [] results))))
 (defn create-log []
-  (sql/with-connection conn
+  (sql/with-connection DB_URL
     (when-not (some #{"log"} (table-names))
       (sql/do-commands
         "CREATE TABLE log
@@ -52,7 +52,7 @@
         );"))))
 
 (defn test-log-insert []
-  (sql/with-connection conn
+  (sql/with-connection DB_URL
     (sql/do-commands
       "INSERT INTO log (author_email, author_name, date, id, subject, timestamp, body)
       VALUES
@@ -68,9 +68,9 @@
   (->> s
     (timef/parse (timef/formatter "EEE MMM dd HH:mm:ss yyyy Z"))
     timec/to-timestamp))
-    
+
 (defn test-log-insert-clj []
-  (sql/with-connection conn
+  (sql/with-connection DB_URL
     (sql/insert-record :log {:author_email "email@gmail.com"
                              :author_name  "Joe Schmoe"
                              :date (to-timestamp
@@ -79,10 +79,17 @@
                              :subject "added some functionality"
                              :timestamp 1341594990
                              :body "added function fn to file.clj"})))
-                           
+
+(defn ^{:doc "Test DB functionality and raise exception if something breaks"}
+  db-tests []
+  (sql/with-connection DB_URL
+    (println (table-names))))
+
+(expect (db-tests) nil)
+
 (defn -main []
   (println "Migrating database...") (flush)
-  (println "Creating actions table...")(flush)
+  (println "Creating actions table...") (flush)
   (create-actions)
   (test-action-insert)
   (println "Creating log table...")(flush)
