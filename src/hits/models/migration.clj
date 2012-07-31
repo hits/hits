@@ -1,4 +1,5 @@
 (ns hits.models.migration
+  (:use expectations)
   (:require [clojure.java.jdbc :as sql])
   (:require [clj-time.format :as timef])
   (:require [clj-time.coerce :as timec]))

@@ -1,4 +1,5 @@
 (ns hits.core
+  (:use expectations)
   (:use noir.core)
   (:use hiccup.core)
   (:use hiccup.page-helpers)
