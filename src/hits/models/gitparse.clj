@@ -17,21 +17,25 @@
 (def log-format (str (string/join line-terminator (vals git-fields))
                      msg-terminator))
 
-
 (defn log-msg-to-map [msg]
   (zipmap (keys git-fields)
           (string/split msg (re-pattern line-terminator))))
 
-(defn dir-of-repo [repo]
-  (str "/home/mrocklin/workspace/" repo))
-(defn parse-log [repo]
+(def tempdir "./tmp/")
+(defn dir-of-repo [user repo]
+  (str tempdir user "--" repo))
+(defn clone-repo [user repo]
+  (shell/sh "git" "clone" 
+            (str "git@github.com:" user "/" repo ".git") 
+            (dir-of-repo user repo)))
+
+(defn parse-log [user repo]
   (let [text (:out (shell/sh "git" "log" (format "--format=%s" log-format) 
-                             :dir (dir-of-repo repo)))
+                             :dir (dir-of-repo user repo)))
         msgs (string/split text (re-pattern msg-terminator))]
     (map log-msg-to-map msgs)))
 
 ;; git whatchanged
-
 (def whatchanged-format (str msg-terminator "%H"))
 
 (defn parse-action-line [line]
@@ -50,11 +54,11 @@
         actions-and-paths (map parse-action-line action-lines)]
     [id actions-and-paths]))
 
-(defn parse-whatchanged [repo]
+(defn parse-whatchanged [user repo]
   (let [text (:out (shell/sh "git" "whatchanged" 
                              (format "--format=%s" whatchanged-format)
                              "--name-status"
-                             :dir (dir-of-repo repo)))
+                             :dir (dir-of-repo user repo)))
         msgs (string/split text (re-pattern msg-terminator))
         good-msgs (filter non-trivial-line msgs)]
     (map wc-msg-to-map good-msgs)))
@@ -64,10 +68,11 @@
        actions-and-paths))
 
 ;; whatchanged testing
-(def id-appair (first (parse-whatchanged "hits" )))
+(clone-repo "hits" "hits")
+(def id-appair (first (parse-whatchanged "hits" "hits" )))
 (def flat-map (flatten-whatchanged-map id-appair))
-(def final-result (map flatten-whatchanged-map (parse-whatchanged "hits")))
+(def final-result (map flatten-whatchanged-map (parse-whatchanged "hits" "hits")))
 
 ;; log testing
 (count (filter (fn [repo] (= (repo "author_email") "mrocklin@gmail.com")) 
-               (parse-log "hits")))
+               (parse-log "hits" "hits")))
