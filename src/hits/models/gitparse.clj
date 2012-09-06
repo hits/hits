@@ -1,7 +1,6 @@
 (ns hits.models.gitparse
   (:require [clojure.string :as string])
   (:require [clojure.java.shell :as shell]))
-     
 
 ;; git log 
 (def git-fields {"id" "%H"
@@ -13,17 +12,21 @@
                  "body" "%B"})
 
 (def line-terminator "\nline-terminator525724924752\n")
-(def msg-terminator  "\n\nmessage terminator525925825722825\n\n")
+(def msg-terminator  "\n\nmessage-terminator525925825722825\n\n")
 
 (def log-format (str (string/join line-terminator (vals git-fields))
                      msg-terminator))
+
 
 (defn log-msg-to-map [msg]
   (zipmap (keys git-fields)
           (string/split msg (re-pattern line-terminator))))
 
-(defn parse-log []
-  (let [text (:out (shell/sh "git" "log" (format "--format=%s" log-format)))
+(defn dir-of-repo [repo]
+  (str "/home/mrocklin/workspace/" repo))
+(defn parse-log [repo]
+  (let [text (:out (shell/sh "git" "log" (format "--format=%s" log-format) 
+                             :dir (dir-of-repo repo)))
         msgs (string/split text (re-pattern msg-terminator))]
     (map log-msg-to-map msgs)))
 
@@ -47,10 +50,11 @@
         actions-and-paths (map parse-action-line action-lines)]
     [id actions-and-paths]))
 
-(defn parse-whatchanged []
+(defn parse-whatchanged [repo]
   (let [text (:out (shell/sh "git" "whatchanged" 
                              (format "--format=%s" whatchanged-format)
-                             "--name-status"))
+                             "--name-status"
+                             :dir (dir-of-repo repo)))
         msgs (string/split text (re-pattern msg-terminator))
         good-msgs (filter non-trivial-line msgs)]
     (map wc-msg-to-map good-msgs)))
@@ -60,7 +64,10 @@
        actions-and-paths))
 
 ;; whatchanged testing
-(def id-appair (first (parse-whatchanged )))
+(def id-appair (first (parse-whatchanged "hits" )))
 (def flat-map (flatten-whatchanged-map id-appair))
-(def final-result (map flatten-whatchanged-map (parse-whatchanged)))
+(def final-result (map flatten-whatchanged-map (parse-whatchanged "hits")))
 
+;; log testing
+(count (filter (fn [repo] (= (repo "author_email") "mrocklin@gmail.com")) 
+               (parse-log "hits")))
