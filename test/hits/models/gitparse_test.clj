@@ -1,5 +1,6 @@
-(ns hits.models.gitparse
-  (:use clojure.test))
+(ns hits.models.gitparse-test
+  (:use clojure.test
+        hits.models.gitparse))
 
 (defn setup []
   (clone-repo "hits" "hits-test"))
