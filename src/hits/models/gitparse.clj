@@ -19,7 +19,7 @@
 
 (defn log-msg-to-map [msg]
   (zipmap (keys git-fields)
-          (string/split msg (re-pattern line-terminator))))
+          (map string/trim (string/split msg (re-pattern line-terminator)))))
 
 (def tempdir "./tmp/")
 (defn dir-of-repo [user repo]
@@ -47,12 +47,16 @@
 (defn non-trivial-line [line]
   (not (= (string/trim line) "")))
 
+(defn index-by-id [map-coll]
+  (zipmap (map (fn [m] (m "id")) map-coll)
+          map-coll))
+
 (defn wc-msg-to-map [msg]
   (let [lines (string/split msg #"\n")
         id (first lines)
         action-lines (filter non-trivial-line (rest lines))
         actions-and-paths (map parse-action-line action-lines)]
-    [id actions-and-paths]))
+    {id actions-and-paths}))
 
 (defn parse-whatchanged [user repo]
   (let [text (:out (shell/sh "git" "whatchanged" 
@@ -61,7 +65,7 @@
                              :dir (dir-of-repo user repo)))
         msgs (string/split text (re-pattern msg-terminator))
         good-msgs (filter non-trivial-line msgs)]
-    (map wc-msg-to-map good-msgs)))
+    (apply merge (map wc-msg-to-map good-msgs))))
         
 (defn flatten-whatchanged-map [[id actions-and-paths]]
   (map (fn [[action path]] {"id" id "action" action "path" path})
