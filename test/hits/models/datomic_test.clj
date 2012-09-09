@@ -39,7 +39,8 @@
 (d/create-database uri)
 (def conn (d/connect uri))
 @(d/transact conn git/schema)
-(add-repo-to-db conn "hits" "hits-test")
+(datomic.common/await-derefs (add-repo-to-db conn "hits" "hits-test"))
+
 
 (deftest test-query-subjects
   (is (contains? (d/q '[:find ?sub :where [?c :git/subject ?sub]] (d/db conn)) ["First commit"])))

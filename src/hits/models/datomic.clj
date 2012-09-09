@@ -48,4 +48,4 @@
 (defn add-repo-to-db [conn user repo]
   (let [git-data (parse/parse-log user repo)
         dtm-data (map add-new-id (map translate git-data))]
-    @(d/transact conn dtm-data)))
+    (map (fn [dat] (d/transact conn [dat])) dtm-data)))
