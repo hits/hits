@@ -44,3 +44,8 @@
 
 (defn add-new-id [m]
   (assoc m :db/id (datomic.api/tempid :db.part/user)))
+
+(defn add-repo-to-db [conn user repo]
+  (let [git-data (parse/parse-log user repo)
+        dtm-data (map add-new-id (map translate git-data))]
+    @(d/transact conn dtm-data)))
