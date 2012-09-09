@@ -32,9 +32,11 @@
 (defn parse-log [user repo]
   (let [text (:out (shell/sh "git" "log" (format "--format=%s" log-format) 
                              :dir (dir-of-repo user repo)))
-        msgs (string/split text (re-pattern msg-terminator))]
-    (map log-msg-to-map msgs)))
-
+        msgs (string/split text (re-pattern msg-terminator))
+        maps (map log-msg-to-map msgs)
+        non-empty-maps (filter (fn [m] (contains? m "id")) maps)]
+    non-empty-maps))
+    
 ;; git whatchanged
 (def whatchanged-format (str msg-terminator "%H"))
 
