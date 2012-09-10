@@ -69,8 +69,9 @@
   :db.install/_attribute :db.part/db}
  
  {:db/id #db/id[:db.part/db]
-  :db/ident :git.change/commit
-  :db/valueType :db.type/ref
+  :db/ident :git.change/commit-id
+  :db/index true
+  :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "The commit on which this change was made"
   :db.install/_attribute :db.part/db}
