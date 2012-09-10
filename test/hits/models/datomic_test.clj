@@ -12,14 +12,14 @@
 (defn set= [a b]
   (= (set a) (set b)))
 
-(deftest test-translate
+(deftest test-translate-log
   (let [logmap          {"id" "ABCD"
                          "subject" "a subject" 
                          "body" "a body" 
                          "author_name" "Joe Schmoe" 
                          "date" "Fri Jul 6 11:59:00 2012 -0500"
                          "timestamp" "10000000"}
-        dtmmap          (translate logmap)
+        dtmmap          (translate-log logmap)
         expected-dtmmap {:git/id "ABCD" 
                          :git/subject "a subject" 
                          :git/body "a body" 
@@ -49,13 +49,29 @@
   (is (= (ffirst (d/q '[:find ?name :where [?c :git/subject "First commit"]
                                             [?c :git/author-name ?name]] (d/db conn)))
          "Matthew Rocklin")))
-           
-    
-;(clojure.pprint/pprint (d/q '[:find ?name ?email :where [?c :git/author-email ?email] [?c :git/author-name ?name]] (d/db conn)))
+
+(deftest test-changes-of-first-commit
+  (is (= (d/q '[:find ?action ?file :where [?c :git.change/action     ?action]
+                                           [?c :git.change/file       ?file]
+                                           [?c :git.change/commit-id "fcd206b7ba561ed12641328bc6da8b3a494deabb"]]
+                     (d/db conn))
+          #{["A" "README"]})))
+;(test-changes-of-first-commit)
+
+(deftest test-join
+  (is (= (d/q '[:find ?action ?file :where [?commit :git/subject          "First commit"]
+                                           [?commit :git/id               ?id]
+                                           [?change :git.change/commit-id ?id]
+                                           [?change :git.change/action    ?action]
+                                           [?change :git.change/file      ?file]]
+              (d/db conn))
+         #{["A" "README"]})))
+;(test-join)
+                                           
 ;(clojure.pprint/pprint (seq (d/q '[:find ?c ?name ?id :where [?c :git/id "804d5c62d429e313a542630e58efd3de6a0a1d02"] [?c :git/author-name ?name] [?c :git/id ?id]] (d/db conn))))
 
-(test-timestamp)
-(test-translate)
-(test-add-new-id)
-(test-query-subjects)
-(test-author-of-first-commit)
+;(test-timestamp)
+;(test-translate-log)
+;(test-add-new-id)
+;(test-query-subjects)
+;(test-author-of-first-commit)

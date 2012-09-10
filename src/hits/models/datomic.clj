@@ -14,7 +14,8 @@
    "date"         :git/date
    "timestamp"    :git/timestamp
    "action"       :git.change/action
-   "file"         :git.change/file}
+   "file"         :git.change/file
+   "commit-id"    :git.change/commit-id}
    )
 
 (defn to-timestamp [s]
@@ -25,7 +26,7 @@
 (defn parse-int [s]
   (Integer. (re-find #"[0-9]*" s)))
 
-(def transformations 
+(def transformations-log 
   [(defn timestamp [m]
      (if (contains? m "timestamp")
        (update-in m ["timestamp"] parse-int)
@@ -36,16 +37,28 @@
         m))])
 
 
-(defn translate [logmap]
+(defn translate-log [logmap]
   (let [oldkeys (keys logmap)
         newkeys (map key-translate oldkeys)
-        newmap  (reduce (fn [m trns] (trns m)) logmap transformations)]
+        newmap  (reduce (fn [m trns] (trns m)) logmap transformations-log)]
     (zipmap newkeys (map newmap oldkeys))))
+
+(def transformations-wc
+  [])
+(defn translate-wc [wc-map]
+  (let [oldkeys (keys wc-map)
+        newkeys (map key-translate oldkeys)
+        newmap  (reduce (fn [m trns] (trns m)) wc-map transformations-wc)]
+    (zipmap newkeys (map newmap oldkeys))))
+
 
 (defn add-new-id [m]
   (assoc m :db/id (datomic.api/tempid :db.part/user)))
 
 (defn add-repo-to-db [conn user repo]
-  (let [git-data (parse/parse-log user repo)
-        dtm-data (map add-new-id (map translate git-data))]
-    (map (fn [dat] (d/transact conn [dat])) dtm-data)))
+  (let [log-data (parse/parse-log user repo)
+        dtm-data (map add-new-id (map translate-log log-data))
+        wc-data  (parse/parse-whatchanged user repo)
+        wc-flat  (parse/unpack-whatchanged wc-data)
+        dwc-data (map add-new-id (map translate-log wc-flat))]
+    (map (fn [dat] (d/transact conn [dat])) (concat dtm-data dwc-data))))
