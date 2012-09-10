@@ -11,7 +11,13 @@
 (def log-map (index-by-id log))
 
 
-
+(deftest test-unpack-whatchanged
+  (is (= (unpack-whatchanged {"abcd" [["A" "file1"] ["M" "file2"]]
+                              "dcba" [["M" "file1"]]})
+         #{{"commit-id" "abcd" "action" "A" "file" "file1"}
+           {"commit-id" "abcd" "action" "M" "file" "file2"}
+           {"commit-id" "dcba" "action" "M" "file" "file1"}})))
+(test-unpack-whatchanged)
 
 (def whatchanged (parse-whatchanged "hits" "hits-test"))
 

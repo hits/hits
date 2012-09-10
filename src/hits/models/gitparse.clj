@@ -70,8 +70,10 @@
     (apply merge (map wc-msg-to-map good-msgs))))
         
 (defn flatten-whatchanged-map [[id actions-and-paths]]
-  (map (fn [[action path]] {"id" id "action" action "path" path})
-       actions-and-paths))
+  (set (map (fn [[action path]] {"commit-id" id "action" action "file" path})
+       actions-and-paths)))
+(defn unpack-whatchanged [wc-map]
+  (apply clojure.set/union (map flatten-whatchanged-map wc-map)))
 
 ;; whatchanged testing
 (clone-repo "hits" "hits")
