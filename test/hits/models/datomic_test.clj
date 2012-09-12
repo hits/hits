@@ -5,6 +5,9 @@
   (:require [hits.models.git-schema :only [schema] :as git] )
   (:require [hits.models.gitparse :only [parse-log parse-whatchanged] :as parse]))
 
+(deftest test-parse-int
+  (is (= (parse-int "123") 123)))
+
 (deftest test-timestamp
   (is (= (type (to-timestamp "Fri Jul 6 11:59:00 2012 -0500")) 
          java.sql.Timestamp)))
@@ -46,9 +49,9 @@
   (is (contains? (d/q '[:find ?sub :where [?c :git/subject ?sub]] (d/db conn)) ["First commit"])))
 
 (deftest test-author-of-first-commit
-  (is (= (ffirst (d/q '[:find ?name :where [?c :git/subject "First commit"]
-                                            [?c :git/author-name ?name]] (d/db conn)))
-         "Matthew Rocklin")))
+  (is (= (d/q '[:find ?name :where [?c :git/subject "First commit"]
+                                            [?c :git/author-name ?name]] (d/db conn))
+         #{["Matthew Rocklin"]})))
 
 (deftest test-changes-of-first-commit
   (is (= (d/q '[:find ?action ?file :where [?c :git.change/action     ?action]
@@ -68,7 +71,12 @@
          #{["A" "README"]})))
 ;(test-join)
                                            
-;(clojure.pprint/pprint (seq (d/q '[:find ?c ?name ?id :where [?c :git/id "804d5c62d429e313a542630e58efd3de6a0a1d02"] [?c :git/author-name ?name] [?c :git/id ?id]] (d/db conn))))
+(comment (clojure.pprint/pprint (seq (d/q '[:find ?file  :where [?c :git/id ?id] 
+                                                  [?c :git/author-name "Matthew Rocklin"] 
+                                                  [?change :git.change/commit-id ?id]
+                                                  [?change :git.change/file      ?file]
+                                                  [?change :git.change/action    "A"]]
+                            (d/db conn)))))
 
 ;(test-timestamp)
 ;(test-translate-log)
