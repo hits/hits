@@ -56,6 +56,7 @@
   (assoc m :db/id (datomic.api/tempid :db.part/user)))
 
 (defn add-repo-to-db [conn user repo]
+  (parse/clone-repo user repo) ; idempotent
   (let [log-data (parse/parse-log user repo)
         dtm-data (map add-new-id (map translate-log log-data))
         wc-data  (parse/parse-whatchanged user repo)
