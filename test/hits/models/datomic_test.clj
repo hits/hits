@@ -59,7 +59,6 @@
                                            [?c :git.change/commit-id "fcd206b7ba561ed12641328bc6da8b3a494deabb"]]
                      (d/db conn))
           #{["A" "README"]})))
-;(test-changes-of-first-commit)
 
 (deftest test-join
   (is (= (d/q '[:find ?action ?file :where [?commit :git/subject          "First commit"]
@@ -69,7 +68,6 @@
                                            [?change :git.change/file      ?file]]
               (d/db conn))
          #{["A" "README"]})))
-;(test-join)
                                            
 (comment (clojure.pprint/pprint (seq (d/q '[:find ?file  :where [?c :git/id ?id] 
                                                   [?c :git/author-name "Matthew Rocklin"] 
@@ -77,9 +75,3 @@
                                                   [?change :git.change/file      ?file]
                                                   [?change :git.change/action    "A"]]
                             (d/db conn)))))
-
-;(test-timestamp)
-;(test-translate-log)
-;(test-add-new-id)
-;(test-query-subjects)
-;(test-author-of-first-commit)
