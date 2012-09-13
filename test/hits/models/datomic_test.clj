@@ -23,18 +23,18 @@
                          "date" "Fri Jul 6 11:59:00 2012 -0500"
                          "timestamp" "10000000"}
         dtmmap          (translate-log logmap)
-        expected-dtmmap {:git/id "ABCD" 
-                         :git/subject "a subject" 
-                         :git/body "a body" 
-                         :git/author-name "Joe Schmoe" 
-                         :git/date (to-timestamp "Fri Jul 6 11:59:00 2012 -0500")
-                         :git/timestamp 10000000}]
+        expected-dtmmap {:git.log/id "ABCD" 
+                         :git.log/subject "a subject" 
+                         :git.log/body "a body" 
+                         :git.log/author-name "Joe Schmoe" 
+                         :git.log/date (to-timestamp "Fri Jul 6 11:59:00 2012 -0500")
+                         :git.log/timestamp 10000000}]
     (is (set= (keys expected-dtmmap) (keys dtmmap)))
     (is (set= (vals expected-dtmmap) (vals dtmmap)))
-    (is (= (type (:git/date dtmmap)) java.sql.Timestamp))))
+    (is (= (type (:git.log/date dtmmap)) java.sql.Timestamp))))
 
 (deftest test-add-new-id
-  (let [oldmap {:git/id "ABCD" :git/subject "a subject"}
+  (let [oldmap {:git.log/id "ABCD" :git.log/subject "a subject"}
         newmap (add-new-id oldmap)]
     (is (contains? newmap :db/id))))
 
@@ -46,11 +46,11 @@
 
 
 (deftest test-query-subjects
-  (is (contains? (d/q '[:find ?sub :where [?c :git/subject ?sub]] (d/db conn)) ["First commit"])))
+  (is (contains? (d/q '[:find ?sub :where [?c :git.log/subject ?sub]] (d/db conn)) ["First commit"])))
 
 (deftest test-author-of-first-commit
-  (is (= (d/q '[:find ?name :where [?c :git/subject "First commit"]
-                                            [?c :git/author-name ?name]] (d/db conn))
+  (is (= (d/q '[:find ?name :where [?c :git.log/subject "First commit"]
+                                   [?c :git.log/author-name ?name]] (d/db conn))
          #{["Matthew Rocklin"]})))
 
 (deftest test-changes-of-first-commit
@@ -61,17 +61,19 @@
           #{["A" "README"]})))
 
 (deftest test-join
-  (is (= (d/q '[:find ?action ?file :where [?commit :git/subject          "First commit"]
-                                           [?commit :git/id               ?id]
+  (is (= (d/q '[:find ?action ?file :where [?commit :git.log/subject  "First commit"]
+                                           [?commit :git.log/id           ?id]
                                            [?change :git.change/commit-id ?id]
                                            [?change :git.change/action    ?action]
                                            [?change :git.change/file      ?file]]
               (d/db conn))
          #{["A" "README"]})))
                                            
-(comment (clojure.pprint/pprint (seq (d/q '[:find ?file  :where [?c :git/id ?id] 
-                                                  [?c :git/author-name "Matthew Rocklin"] 
-                                                  [?change :git.change/commit-id ?id]
-                                                  [?change :git.change/file      ?file]
-                                                  [?change :git.change/action    "A"]]
+(comment (clojure.pprint/pprint (seq (d/q 
+                      '[:find ?file  
+                        :where [?c :git.log/id ?id] 
+                               [?c :git.log/author-name "Matthew Rocklin"] 
+                               [?change :git.change/commit-id ?id]
+                               [?change :git.change/file      ?file]
+                               [?change :git.change/action    "A"]]
                             (d/db conn)))))

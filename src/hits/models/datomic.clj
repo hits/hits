@@ -6,13 +6,13 @@
   (:require [clj-time.coerce :as timec]))
 
 (def key-translate 
-  {"author_name"  :git/author-name
-   "author_email" :git/author-email
-   "id"           :git/id
-   "subject"      :git/subject
-   "body"         :git/body
-   "date"         :git/date
-   "timestamp"    :git/timestamp
+  {"author_name"  :git.log/author-name
+   "author_email" :git.log/author-email
+   "id"           :git.log/id
+   "subject"      :git.log/subject
+   "body"         :git.log/body
+   "date"         :git.log/date
+   "timestamp"    :git.log/timestamp
    "action"       :git.change/action
    "file"         :git.change/file
    "commit-id"    :git.change/commit-id}
