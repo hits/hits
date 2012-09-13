@@ -66,6 +66,7 @@
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "The file that was changed"
+  :db/fulltext true
   :db.install/_attribute :db.part/db}
  
  {:db/id #db/id[:db.part/db]
