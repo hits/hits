@@ -27,11 +27,11 @@
   (Integer. (re-find #"[0-9]*" s)))
 
 (def transformations-log 
-  [(defn timestamp [m]
+  [(fn timestamp [m]
      (if (contains? m "timestamp")
        (update-in m ["timestamp"] parse-int)
         m))
-   (defn date [m]
+   (fn date [m]
      (if (contains? m "date")
        (update-in m ["date"] to-timestamp)
         m))])
