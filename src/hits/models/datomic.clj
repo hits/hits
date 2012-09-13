@@ -26,12 +26,23 @@
 (defn parse-int [s]
   (Integer. (re-find #"[0-9]*" s)))
 
+
+; The data produced by gitparse.clj needs to be massaged a bit
+; For example git produces dates as strings "Fri 24 June ..." 
+; But datomic needs java.sql.TimeStamp objects
+; This is one transformation that needs to happen. There might be more.
+; Lets create a list of all the transformations we need. We'll compose them
+; later.
 (def transformations-log 
-  [(fn timestamp [m]
-     (if (contains? m "timestamp")
+  [(fn timestamp [m] 
+     "Git timestamp is the number of seconds past some time
+      It is returned as a string. We just need to parse it" 
+     (if (contains? m "timestamp") 
        (update-in m ["timestamp"] parse-int)
         m))
    (fn date [m]
+     "Git dates are strings. We need to turn them into java.sql.TimeStamps
+      Note that this timestamp and the previous timestamp are very different"
      (if (contains? m "date")
        (update-in m ["date"] to-timestamp)
         m))])
