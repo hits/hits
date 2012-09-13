@@ -75,3 +75,14 @@
         wc-flat  (parse/unpack-whatchanged wc-data)
         dwc-data (map add-new-id (map translate-log wc-flat))]
     (map (fn [dat] (d/transact conn [dat])) (concat dtm-data dwc-data))))
+
+(defn file-activity [conn path]
+  (let [results (d/q 
+                  '[:find ?file ?id 
+                    :in $ ?search
+                    :where [?c      :git.log/id ?id]
+                           [?change :git.change/commit-id ?id] 
+                           [(fulltext $ :git.change/file ?search) [[?change ?file]]]]
+                  (d/db conn) path)
+        groups (group-by first results)]
+       (zipmap (keys groups) (map count (vals groups)))))

@@ -68,6 +68,10 @@
                                            [?change :git.change/file      ?file]]
               (d/db conn))
          #{["A" "README"]})))
+
+(deftest test-file-activity
+  (is (= (file-activity conn "README")
+         {"README" 3})))
                                            
 (comment (clojure.pprint/pprint (seq (d/q 
                       '[:find ?file  
