@@ -40,7 +40,7 @@
 (defn translate-log [logmap]
   (let [oldkeys (keys logmap)
         newkeys (map key-translate oldkeys)
-        newmap  (reduce (fn [m trns] (trns m)) logmap transformations-log)]
+        newmap  ((apply comp transformations-log) logmap)]
     (zipmap newkeys (map newmap oldkeys))))
 
 (def transformations-wc
@@ -48,7 +48,7 @@
 (defn translate-wc [wc-map]
   (let [oldkeys (keys wc-map)
         newkeys (map key-translate oldkeys)
-        newmap  (reduce (fn [m trns] (trns m)) wc-map transformations-wc)]
+        newmap  ((apply comp transformations-wc) wc-map)]
     (zipmap newkeys (map newmap oldkeys))))
 
 
