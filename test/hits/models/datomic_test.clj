@@ -69,10 +69,22 @@
               (d/db conn))
          #{["A" "README"]})))
 
+(deftest test-count-groups
+  (is (= (count-groups [[1 2 3] [2 2 2], [2 1 2]] 2)
+         {2 2, 3 1})))
+
+(deftest test-activity
+  (is (= (activity conn "activity-dir")
+         #{["activity-dir/a-file" "Matthew Rocklin" "29702acc15d7f5acd884cbc2d70db1ed881cab0c"]})))
+
+(deftest test-author-activity
+  (is (= (author-activity conn "activity-dir")
+         {"Matthew Rocklin" 1})))
+
 (deftest test-file-activity
   (is (= (file-activity conn "README")
          {"README" 3})))
-                                           
+
 (comment (clojure.pprint/pprint (seq (d/q 
                       '[:find ?file  
                         :where [?c :git.log/id ?id] 
