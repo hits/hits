@@ -45,6 +45,7 @@
 
 (def transformations-wc
   [])
+
 (defn translate-wc [wc-map]
   (let [oldkeys (keys wc-map)
         newkeys (map key-translate oldkeys)

@@ -24,6 +24,7 @@
 (def tempdir "./tmp/")
 (defn dir-of-repo [user repo]
   (str tempdir user "--" repo))
+
 (defn clone-repo [user repo]
   (shell/sh "mkdir" tempdir) ; idempotent
   (shell/sh "git" "clone" 
