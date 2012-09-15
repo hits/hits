@@ -67,6 +67,11 @@
 (defn add-new-id [m]
   (assoc m :db/id (datomic.api/tempid :db.part/user)))
 
+(defn repo-partition [user repo]
+  {:db/id (datomic.api/tempid :db.part/db),
+   :db/ident (parse/str-identifier user repo),
+   :db.install/_partition :db.part/db})
+
 (defn add-repo-to-db [conn user repo]
   (parse/clone-repo user repo) ; idempotent
   (let [log-data (parse/parse-log user repo)
@@ -77,7 +82,7 @@
     (map (fn [dat] (d/transact conn [dat])) (concat dtm-data dwc-data))))
 
 ; Queries
-(defn activity [conn path]
+(defn activity [user repo path conn]
   "Returns a vector of [File, Author, ID] triples"
   (d/q 
     '[:find ?file ?author ?id 
@@ -94,11 +99,11 @@
   (let [groups (group-by #(nth % idx) vecs)]
        (zipmap (keys groups) (map count (vals groups)))))
 
-(defn file-activity [conn path]
+(defn file-activity [user repo path conn]
   "Returns a map of files and the number of times they have been modified"
-  (count-groups (activity conn path) 0))
+  (count-groups (activity user repo path conn) 0))
 
-(defn author-activity [conn path]
+(defn author-activity [user repo path conn]
   "Returns a map of authors and the number of times they have modified files"
-    (count-groups (activity conn path) 1))
+    (count-groups (activity user repo path conn) 1))
 

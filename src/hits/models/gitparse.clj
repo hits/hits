@@ -21,9 +21,12 @@
   (zipmap (keys git-fields)
           (map string/trim (string/split msg (re-pattern line-terminator)))))
 
+(defn str-identifier [user repo]
+  (str user "--" repo))
+
 (def tempdir "./tmp/")
 (defn dir-of-repo [user repo]
-  (str tempdir user "--" repo))
+  (str tempdir (str-identifier user repo)))
 
 (defn clone-repo [user repo]
   (shell/sh "mkdir" tempdir) ; idempotent
