@@ -83,7 +83,7 @@
 
 (deftest test-file-activity
   (is (= (file-activity conn "README")
-         {"README" 3})))
+         {"README.md" 1 "README" 3})))
 
 (comment (clojure.pprint/pprint (seq (d/q 
                       '[:find ?file  

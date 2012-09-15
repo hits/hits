@@ -77,17 +77,17 @@
     (map (fn [dat] (d/transact conn [dat])) (concat dtm-data dwc-data))))
 
 ; Queries
-
 (defn activity [conn path]
   "Returns a vector of [File, Author, ID] triples"
   (d/q 
-                  '[:find ?file ?author ?id 
-                    :in $ ?search
-                    :where [?c :git.log/author-name ?author]
-                           [?c      :git.log/id ?id]
-                           [?change :git.change/commit-id ?id] 
-                           [(fulltext $ :git.change/file ?search) [[?change ?file]]]]
-                  (d/db conn) path))
+    '[:find ?file ?author ?id 
+      :in $ ?path
+      :where [?c      :git.log/author-name  ?author]
+             [?c      :git.log/id           ?id]
+             [?change :git.change/commit-id ?id] 
+             [?change :git.change/file      ?file]
+             [(.startsWith ^String ?file ?path)]]
+     (d/db conn) path))
 
 (defn count-groups [vecs idx]
   "Groups a seq of vectors by an index and returns the counts of each bin"
