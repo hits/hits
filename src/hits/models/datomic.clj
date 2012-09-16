@@ -6,12 +6,12 @@
   (:require [clj-time.coerce :as timec]))
 
 
-; ------------------------------
-;  Inserts
-; ------------------------------
+;; ------------------------------
+;;  Inserts
+;; ------------------------------
 
-; keys used in git parse and keys used in datomic are different
-; Here is a mapping between them
+;; keys used in git parse and keys used in datomic are different
+;; Here is a mapping between them
 (def key-translate 
   {"author_name"  :git.log/author-name
    "author_email" :git.log/author-email
@@ -31,12 +31,12 @@
     (timef/parse (timef/formatter "EEE MMM dd HH:mm:ss yyyy Z"))
     timec/to-timestamp))
 
-; The data produced by gitparse.clj needs to be massaged a bit
-; For example git produces dates as strings "Fri 24 June ..." 
-; But datomic needs java.sql.TimeStamp objects
-; This is one transformation that needs to happen. There might be more.
-; Lets create a list of all the transformations we need. We'll compose them
-; later.
+;; The data produced by gitparse.clj needs to be massaged a bit
+;; For example git produces dates as strings "Fri 24 June ..." 
+;; But datomic needs java.sql.TimeStamp objects
+;; This is one transformation that needs to happen. There might be more.
+;; Lets create a list of all the transformations we need. We'll compose them
+;; later.
 (def transformations-log 
   [(fn timestamp [m] 
      "Git timestamp is the number of seconds past some time
@@ -90,9 +90,9 @@
         dwc-data (map add-new-id (map translate-log wc-flat))]
     (map (fn [dat] (d/transact conn [dat])) (concat dtm-data dwc-data))))
 
-; ------------------------------
-; Queries 
-; ------------------------------
+;; ------------------------------
+;; Queries 
+;; ------------------------------
 (defn count-groups [vecs idx]
   "Group a seq of vectors by an index and return the counts of each bin"
   (let [groups (group-by #(nth % idx) vecs)]

@@ -20,7 +20,7 @@
 
 (def whatchanged (parse-whatchanged "hits" "hits-test"))
 
-; First commit 
+;; First commit 
 
 (def c1 (log-map "fcd206b7ba561ed12641328bc6da8b3a494deabb"))
 
@@ -36,7 +36,7 @@
   (first-commit-log)
   (first-commit-wc))
 
-; Second commit
+;; Second commit
 
 (def c2 (log-map "cf55be357e7fe6837faa530d53fe5d516627c6a7"))
 
@@ -52,13 +52,13 @@
   (second-commit-log)
   (second-commit-wc))
 
-; Everything
+;; Everything
 
 (deftest testall
   (first-commit)
   (second-commit))
 
-; Utility 
+;; Utility 
 (deftest test-index-by
   (is (= (index-by [{:a 1 :b 2} {:a 3 :b 4}] :a) 
          {1 {:a 1 :b 2}, 3 {:a 3 :b 4}})))

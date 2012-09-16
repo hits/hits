@@ -4,11 +4,11 @@
 
 (def tempdir "./tmp/")
 
-;-------------------------
-; git log
-;-------------------------
+;;-------------------------
+;; git log
+;;-------------------------
 
-; The fields we want to pull out of git log and their format strings
+;; The fields we want to pull out of git log and their format strings
 (def git-fields {"id" "%H"
                  "author_name" "%an"
                  "author_email" "%ae"
@@ -54,9 +54,9 @@
         non-empty-maps (filter (fn [m] (contains? m "id")) maps)]
     non-empty-maps))
 
-;-------------------------
-; git whatchanged 
-;-------------------------
+;;-------------------------
+;; git whatchanged 
+;;-------------------------
 
 (def whatchanged-format (str msg-terminator "%H"))
 
