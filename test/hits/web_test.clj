@@ -25,13 +25,19 @@
 
 (def conn (setup_datomic! repos))
 
-(author-activity "eigenhombre" "namejen" "src/namejen" conn)
+(defn link-for [name repo] (format "/%s/%s/" name repo))
 
 (noir/defpage "/" []
   (hicc/html [:h1 "Welcome to HITS (Hands in the Soup)"]
              [:p [:b "Available repos:"]]
              (map (fn [[name repo]] 
-                    [:p (page/link-to "/" (str name "/" repo))]) repos)))
+                    [:p (page/link-to (link-for name repo)
+                                      (str name "/" repo))]) repos)))
+
+(noir/defpage "/:name/:repo/" {:keys [name repo]}
+  (hicc/html [:h1 (format "%s/%s" name repo)]
+             (map (fn [[file author id]] [:pre file " " author " " id])
+                  (activity name repo "" conn))))
 
 ;; run (web-main) at REPL to launch test server:
 (defn web-main []
