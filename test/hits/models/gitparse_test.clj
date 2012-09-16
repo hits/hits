@@ -8,7 +8,7 @@
 (setup)
  
 (def log (parse-log "hits" "hits-test"))
-(def log-map (index-by-id log))
+(def log-map (index-by log "id"))
 
 
 (deftest test-unpack-whatchanged
@@ -57,3 +57,8 @@
 (deftest testall
   (first-commit)
   (second-commit))
+
+; Utility 
+(deftest test-index-by
+  (is (= (index-by [{:a 1 :b 2} {:a 3 :b 4}] :a) 
+         {1 {:a 1 :b 2}, 3 {:a 3 :b 4}})))

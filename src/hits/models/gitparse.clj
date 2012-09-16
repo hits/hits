@@ -69,8 +69,10 @@
 (defn non-trivial-line [line]
   (not (= (string/trim line) "")))
 
-(defn index-by-id [map-coll]
-  (zipmap (map (fn [m] (m "id")) map-coll)
+(defn index-by [map-coll key]
+  "Easily access maps in a collection by a particular key
+  (index-by [{a 1 b 2} {a 3 b 4}] a) -> {1 {a 1 b 2}, 3 {a 3 b 4}}"
+  (zipmap (map (fn [m] (m key)) map-coll)
           map-coll))
 
 (defn wc-msg-to-map [msg]
