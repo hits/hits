@@ -2,6 +2,8 @@
   (:require [clojure.string :as string])
   (:require [clojure.java.shell :as shell]))
 
+(def tempdir "./tmp/")
+
 ;-------------------------
 ; git log
 ;-------------------------
@@ -30,7 +32,6 @@
   "Identification string for a particular user and repo"
   (str user "--" repo))
 
-(def tempdir "./tmp/")
 (defn dir-of-repo [user repo]
   "The directory in which we clone a repo"
   (str tempdir (str-identifier user repo)))
