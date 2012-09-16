@@ -5,9 +5,6 @@
   (:require [hits.models.git-schema :only [schema] :as git] )
   (:require [hits.models.gitparse :only [parse-log parse-whatchanged] :as parse]))
 
-(deftest test-parse-int
-  (is (= (parse-int "123") 123)))
-
 (deftest test-timestamp
   (is (= (type (to-timestamp "Fri Jul 6 11:59:00 2012 -0500")) 
          java.sql.Timestamp)))

@@ -31,10 +31,6 @@
     (timef/parse (timef/formatter "EEE MMM dd HH:mm:ss yyyy Z"))
     timec/to-timestamp))
 
-(defn parse-int [s]
-  (Integer. (re-find #"[0-9]*" s)))
-
-
 ; The data produced by gitparse.clj needs to be massaged a bit
 ; For example git produces dates as strings "Fri 24 June ..." 
 ; But datomic needs java.sql.TimeStamp objects
@@ -46,7 +42,7 @@
      "Git timestamp is the number of seconds past some time
       It is returned as a string. We just need to parse it" 
      (if (contains? m "timestamp") 
-       (update-in m ["timestamp"] parse-int)
+       (update-in m ["timestamp"] #(Integer/parseInt %))
         m))
    (fn date [m]
      "Git dates are strings. We need to turn them into java.sql.TimeStamps
