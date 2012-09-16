@@ -87,6 +87,10 @@
   (is (= (file-activity "hits" "hits-test" "README" conn)
          {"README.md" 1 "README" 3})))
 
+(deftest test-current-repos
+  (is (= (current-repos conn)
+         #{["hits" "hits-test"] ["hits" "hits-test2"]})))
+
 (comment (clojure.pprint/pprint (seq (d/q 
                       '[:find ?file  
                         :where [?c :git.log/id ?id] 

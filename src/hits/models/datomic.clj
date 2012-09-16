@@ -143,3 +143,9 @@
   "The number of times each user has modified a file within a path"
   (count-groups (activity user repo path conn) 1))
 
+(defn current-repos [conn]
+  "Returns the owner/repo pairs for which we currently have data"
+  (d/q `[:find ?owner ?repo :where [?c :git.log/owner ?owner]
+                                   [?c :git.log/repo  ?repo ]]
+       (d/db conn)))
+  
