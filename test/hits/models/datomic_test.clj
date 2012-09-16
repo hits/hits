@@ -30,11 +30,6 @@
     (is (set= (vals expected-dtmmap) (vals dtmmap)))
     (is (= (type (:git.log/date dtmmap)) java.sql.Timestamp))))
 
-(deftest test-add-new-id
-  (let [oldmap {:git.log/id "ABCD" :git.log/subject "a subject"}
-        newmap (add-new-id oldmap)]
-    (is (contains? newmap :db/id))))
-
 (def uri-mem "datomic:mem://hits-test")
 (def uri-disk "datomic:free://localhost:4334/hits-test")
 (def uri uri-mem)
