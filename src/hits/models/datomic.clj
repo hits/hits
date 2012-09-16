@@ -5,6 +5,17 @@
   (:require [clj-time.format :as timef])
   (:require [clj-time.coerce :as timec]))
 
+;; ------------------------------
+;; Utility
+;; ------------------------------
+
+(defn repo-partition-id [user repo]
+  (keyword (parse/str-identifier user repo)))
+
+(defn new-partition [ident]
+  {:db/id #db/id[:db.part/db],
+  :db/ident ident,
+  :db.install/_partition :db.part/db})
 
 ;; ------------------------------
 ;;  Inserts
@@ -69,10 +80,10 @@
         newmap  ((apply comp transformations-wc) wc-map)]
     (zipmap newkeys (map newmap oldkeys))))
 
-(defn add-new-id [m]
+(defn add-new-id [m part]
   "Add a generated id to an insert map
   This should be called on every *new* entry before sending it to the database"
-  (assoc m :db/id (datomic.api/tempid :db.part/user)))
+  (assoc m :db/id (datomic.api/tempid part)))
 
 (defn repo-partition [user repo]
   "Define a new partition for a user/repo pair"
@@ -83,12 +94,22 @@
 (defn add-repo-to-db [conn user repo] ; this function is not idempotent
   "Add a new repository to database. This function should only be called once."
   (parse/clone-repo user repo) ; idempotent
-  (let [log-data (parse/parse-log user repo)
-        dtm-data (map add-new-id (map translate-log log-data))
+  (let [; partitions
+        partition (repo-partition-id user repo)
+        partition-tx (new-partition partition) ; TODO : Maybe we should wait on this?
+        new-id-fn #(assoc % :db/id (datomic.api/tempid partition))
+        ; git log
+        log-data (parse/parse-log user repo)
+        dlog-data (map translate-log log-data)
+        ; git whatchanged
         wc-data  (parse/parse-whatchanged user repo)
         wc-flat  (parse/unpack-whatchanged wc-data)
-        dwc-data (map add-new-id (map translate-log wc-flat))]
-    (map (fn [dat] (d/transact conn [dat])) (concat dtm-data dwc-data))))
+        dwc-data (map translate-log wc-flat)
+        ; everything together
+        all-data (concat dlog-data dwc-data)
+        data-txs (map new-id-fn all-data) ; add ids to log/wc data
+        transactions (cons partition-tx data-txs)] ; prepend the new partition
+       (map (fn [dat] (d/transact conn [dat])) transactions)))
 
 ;; ------------------------------
 ;; Queries 
