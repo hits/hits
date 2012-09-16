@@ -38,7 +38,9 @@
         newmap (add-new-id oldmap)]
     (is (contains? newmap :db/id))))
 
-(def uri "datomic:mem://hits-test")
+(def uri-mem "datomic:mem://hits-test")
+(def uri-disk "datomic:free://localhost:4334/hits-test")
+(def uri uri-mem)
 (d/create-database uri)
 (def conn (d/connect uri))
 @(d/transact conn git/schema)
