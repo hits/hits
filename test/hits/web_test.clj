@@ -32,7 +32,7 @@
              [:p [:b "Available repos:"]]
              (map (fn [[name repo]] 
                     [:p (page/link-to (link-for name repo)
-                                      (str name "/" repo))]) repos)))
+                                      (str name "/" repo))]) (current-repos conn))))
 
 (noir/defpage "/:name/:repo/" {:keys [name repo]}
   (hicc/html [:h1 (format "%s/%s" name repo)]
