@@ -39,9 +39,9 @@
 (defn clone-repo [user repo]
   "Clone a complete git repository. Store in temporary directory. 
   This function is idempotent (feel free to use it many times at no added cost)"
-  (shell/sh "mkdir" tempdir) ; idempotent
-  (shell/sh "git" "clone" 
-            (str "git@github.com:" user "/" repo ".git") 
+  (shell/sh "mkdir" "-p" tempdir) ; idempotent
+  (shell/sh "git" "clone"
+            (str "git@github.com:" user "/" repo ".git")
             (dir-of-repo user repo)))
 
 (defn parse-log [user repo]
