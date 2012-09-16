@@ -54,6 +54,20 @@
   :db/doc "The timestamp a commit was made"
   :db.install/_attribute :db.part/db}
 
+  {:db/id #db/id[:db.part/db]
+  :db/ident :git.log/owner
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "The username of the owner of the repository"
+  :db.install/_attribute :db.part/db}
+
+   {:db/id #db/id[:db.part/db]
+  :db/ident :git.log/repo
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "The name of the repository"
+  :db.install/_attribute :db.part/db}
+
  {:db/id #db/id[:db.part/db]
   :db/ident :git.change/action
   :db/valueType :db.type/string
