@@ -37,6 +37,7 @@
 (def conn (d/connect uri))
 @(d/transact conn git/schema)
 (datomic.common/await-derefs (add-repo-to-db conn "hits" "hits-test"))
+(datomic.common/await-derefs (add-repo-to-db conn "hits" "hits-test2"))
 
 
 (deftest test-query-subjects
@@ -62,6 +63,13 @@
                                            [?change :git.change/file      ?file]]
               (d/db conn))
          #{["A" "README"]})))
+
+(deftest test-userrepo
+  (is (= (d/q '[:find ?repo :where [?c :git.log/id ?id]
+                                   [?c :git.log/repo ?repo]
+                                   [?change :git.change/commit-id ?id]
+                                   [?change :git.change/file "README.md"]] (d/db conn))
+         #{["hits-test"], ["hits-test2"]})))
 
 (deftest test-count-groups
   (is (= (count-groups [[1 2 3] [2 2 2], [2 1 2]] 2)
