@@ -101,13 +101,3 @@
 (defn unpack-whatchanged [wc-map]
   "Turn whatchanged hierarchical map into a flattened set of maps"
   (apply clojure.set/union (map flatten-whatchanged-map wc-map)))
-
-;; whatchanged testing
-;(clone-repo "hits" "hits")
-;(def id-appair (first (parse-whatchanged "hits" "hits" )))
-;(def flat-map (flatten-whatchanged-map id-appair))
-;(def final-result (map flatten-whatchanged-map (parse-whatchanged "hits" "hits")))
-
-;; log testing
-;(count (filter (fn [repo] (= (repo "author_email") "mrocklin@gmail.com")) 
-;               (parse-log "hits" "hits")))
