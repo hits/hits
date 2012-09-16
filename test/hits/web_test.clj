@@ -35,6 +35,8 @@
                                       (str name "/" repo))]) (current-repos conn))))
 
 (noir/defpage "/:name/:repo/" {:keys [name repo]}
+  (when (not (contains? (current-repos conn) [name repo]))
+    (datomic.common/await-derefs (add-repo-to-db conn name repo)))
   (hicc/html [:h1 (format "%s/%s" name repo)]
              (map (fn [[file author id]] [:pre file " " author " " id])
                   (activity name repo "" conn))))
