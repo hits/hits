@@ -16,7 +16,7 @@
 
 (defn setup_datomic!
   [repos]
-  (let [uri "datomic:mem://hits-test"]
+  (let [uri "datomic:mem://hits-live"]
     (d/create-database uri)
     (let [conn (d/connect uri)]
       @(d/transact conn git/schema)
