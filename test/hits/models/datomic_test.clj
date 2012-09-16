@@ -41,7 +41,7 @@
 (d/create-database uri)
 (def conn (d/connect uri))
 @(d/transact conn git/schema)
-(datomic.common/await-derefs (add-repo-to-db conn "clojure" "clojure"))
+(datomic.common/await-derefs (add-repo-to-db conn "hits" "hits-test"))
 
 
 (deftest test-query-subjects
