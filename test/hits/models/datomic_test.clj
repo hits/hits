@@ -81,19 +81,19 @@
          {2 2, 3 1})))
 
 (deftest test-activity
-  (is (= (activity "hits" "hits-test" "activity-dir" conn)
+  (is (= (activity "hits" "hits-test" "activity-dir" (d/db conn))
          #{["activity-dir/a-file" "Matthew Rocklin" "29702acc15d7f5acd884cbc2d70db1ed881cab0c"]})))
 
 (deftest test-author-activity
-  (is (= (author-activity "hits" "hits-test" "activity-dir" conn)
+  (is (= (author-activity "hits" "hits-test" "activity-dir" (d/db conn))
          {"Matthew Rocklin" 1})))
 
 (deftest test-file-activity
-  (is (= (file-activity "hits" "hits-test" "README" conn)
+  (is (= (file-activity "hits" "hits-test" "README" (d/db conn))
          {"README.md" 1 "README" 3})))
 
 (deftest test-current-repos
-  (is (= (current-repos conn)
+  (is (= (current-repos (d/db conn))
          #{["hits" "hits-test"] ["hits" "hits-test2"]})))
 
 (comment (clojure.pprint/pprint (seq (d/q 

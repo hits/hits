@@ -6,7 +6,7 @@
   (:require [clj-time.coerce :as timec]))
 
 ;; Declarations
-(defn current-repos [conn])
+(defn current-repos [database])
 
 
 ;; ------------------------------
@@ -97,7 +97,7 @@
 
 (defn add-repo-to-db [conn user repo] ; this function is idempotent
   "Add a new repository to database. This function should only be called once."
-  (when-not (contains?  (current-repos conn) [user repo] ) 
+  (when-not (contains?  (current-repos (d/db conn)) [user repo] ) 
     (parse/clone-repo user repo) ; idempotent
     (let [; partitions
           partition (repo-partition-id user repo)
@@ -124,7 +124,7 @@
   (let [groups (group-by #(nth % idx) vecs)]
        (zipmap (keys groups) (map count (vals groups)))))
 
-(defn activity [user repo path conn]
+(defn activity [user repo path database]
   "File activity in a directory of a repository 
   Returns a vector of [File, Author, ID] triples "
   (d/q 
@@ -137,18 +137,18 @@
              [?change :git.change/commit-id ?id] 
              [?change :git.change/file      ?file]
              [(.startsWith ^String ?file ?path)]]
-     (d/db conn) path user repo))
+     database path user repo))
 
-(defn file-activity [user repo path conn]
+(defn file-activity [user repo path database]
   "The number of times each file within a path has been modified"
-  (count-groups (activity user repo path conn) 0))
+  (count-groups (activity user repo path database) 0))
 
-(defn author-activity [user repo path conn]
+(defn author-activity [user repo path database]
   "The number of times each user has modified a file within a path"
-  (count-groups (activity user repo path conn) 1))
+  (count-groups (activity user repo path database) 1))
 
-(defn current-repos [conn]
+(defn current-repos [database]
   "Returns the owner/repo pairs for which we currently have data"
   (d/q `[:find ?owner ?repo :where [?c :git.log/owner ?owner]
                                    [?c :git.log/repo  ?repo ]]
-       (d/db conn)))
+       database))
