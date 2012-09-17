@@ -29,7 +29,7 @@
 (noir/defpage "/" []
   (hicc/html [:h1 "Welcome to HITS (Hands in the Soup)"]
              [:p [:b "Available repos:"]]
-             (map (fn [[name repo]] 
+             (map (fn [[name repo]]
                     [:p (page/link-to (link-for name repo)
                                       (str name "/" repo))]) (current-repos conn))
              [:p "Or visit /owner/repo of your choice"]))
