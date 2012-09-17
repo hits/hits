@@ -5,7 +5,6 @@
    [compojure "0.6.4"]
    [expectations "1.3.3"]
    [hiccup "0.3.6"]
-   [postgresql/postgresql "8.4-702.jdbc4"]
    [noir "1.2.2" :exclusions [org.clojure/clojure]]
    [org.clojure/java.jdbc "0.1.1"]
    [ring/ring-jetty-adapter "0.3.10"]
