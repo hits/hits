@@ -7,23 +7,22 @@
   (:require [hiccup.page-helpers :as page])
   (:require [noir.server :as server]))
 
-(def repos
+(def start-repos
   [["eigenhombre" "namejen"]
    ["hits" "hits"]])
 
 (defn do-repos! [conn repos]
   (apply concat (map (fn [[name proj]] (add-repo-to-db conn name proj)) repos)))
 
-(defn setup_datomic!
-  [repos]
-  (let [uri "datomic:mem://hits-live"]
+(defn setup-datomic! [uri]
     (d/create-database uri)
     (let [conn (d/connect uri)]
       @(d/transact conn git/schema)
-      (datomic.common/await-derefs (do-repos! conn repos))
-      conn)))
+      conn))
 
-(def conn (setup_datomic! repos))
+(def conn (let [c (setup-datomic! "datomic:mem://hits-live")]
+            (do-repos! c start-repos)
+            c))
 
 (defn link-for [name repo] (format "/%s/%s/" name repo))
 
@@ -32,7 +31,8 @@
              [:p [:b "Available repos:"]]
              (map (fn [[name repo]] 
                     [:p (page/link-to (link-for name repo)
-                                      (str name "/" repo))]) (current-repos conn))))
+                                      (str name "/" repo))]) (current-repos conn))
+             [:p "Or visit /owner/repo of your choice"]))
 
 (noir/defpage "/:name/:repo/" {:keys [name repo]}
   (when (not (contains? (current-repos conn) [name repo]))
