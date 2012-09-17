@@ -38,8 +38,8 @@
   (when (not (contains? (current-repos conn) [name repo]))
     (datomic.common/await-derefs (add-repo-to-db conn name repo)))
   (hicc/html [:h1 (format "%s/%s" name repo)]
-             (map (fn [[file author id]] [:pre file " " author " " id])
-                  (activity name repo "" conn))))
+             (map (fn [[author counts]] [:pre author " " counts])
+                  (reverse (sort-by second (author-activity name repo "" conn))))))
 
 ;; run (web-main) at REPL to launch test server:
 (defn web-main []
