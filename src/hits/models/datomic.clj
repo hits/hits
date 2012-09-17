@@ -5,6 +5,17 @@
   (:require [clj-time.format :as timef])
   (:require [clj-time.coerce :as timec]))
 
+;; ------------------------------
+;; Utility
+;; ------------------------------
+
+(defn repo-partition-id [user repo]
+  (keyword (parse/str-identifier user repo)))
+
+(defn new-partition [ident]
+  {:db/id #db/id[:db.part/db],
+  :db/ident ident,
+  :db.install/_partition :db.part/db})
 
 ;; ------------------------------
 ;;  Inserts
@@ -69,26 +80,37 @@
         newmap  ((apply comp transformations-wc) wc-map)]
     (zipmap newkeys (map newmap oldkeys))))
 
-(defn add-new-id [m]
+(defn add-new-id [m part]
   "Add a generated id to an insert map
   This should be called on every *new* entry before sending it to the database"
-  (assoc m :db/id (datomic.api/tempid :db.part/user)))
+  (assoc m :db/id (datomic.api/tempid part)))
 
 (defn repo-partition [user repo]
   "Define a new partition for a user/repo pair"
   {:db/id (datomic.api/tempid :db.part/db),
    :db/ident (parse/str-identifier user repo),
    :db.install/_partition :db.part/db})
+  
 
 (defn add-repo-to-db [conn user repo] ; this function is not idempotent
   "Add a new repository to database. This function should only be called once."
   (parse/clone-repo user repo) ; idempotent
-  (let [log-data (parse/parse-log user repo)
-        dtm-data (map add-new-id (map translate-log log-data))
-        wc-data  (parse/parse-whatchanged user repo)
-        wc-flat  (parse/unpack-whatchanged wc-data)
-        dwc-data (map add-new-id (map translate-log wc-flat))]
-    (map (fn [dat] (d/transact conn [dat])) (concat dtm-data dwc-data))))
+  (let [; partitions
+        partition (repo-partition-id user repo)
+        partition-tx (new-partition partition) ; TODO : Maybe we should wait on this?
+        new-id-fn #(assoc % :db/id (datomic.api/tempid partition))
+        ; git log
+        log (map translate-log (parse/parse-log user repo))
+        dtm-log (map #(merge % {:git.log/owner user :git.log/repo repo}) log)
+        ; git whatchanged
+        wc  (parse/parse-whatchanged user repo)
+        wc-flat  (parse/unpack-whatchanged wc)
+        dtm-wc (map translate-log wc-flat)
+        ; everything together
+        all-data (concat dtm-log dtm-wc)
+        data-txs (map new-id-fn all-data) ; add ids to log/wc data
+        transactions (cons partition-tx data-txs)] ; prepend the new partition
+       (map (fn [dat] (d/transact conn [dat])) transactions)))
 
 ;; ------------------------------
 ;; Queries 
@@ -103,13 +125,15 @@
   Returns a vector of [File, Author, ID] triples "
   (d/q 
     '[:find ?file ?author ?id 
-      :in $ ?path
+      :in $ ?path ?owner ?repo
       :where [?c      :git.log/author-name  ?author]
              [?c      :git.log/id           ?id]
+             [?c      :git.log/owner        ?owner]
+             [?c      :git.log/repo         ?repo]
              [?change :git.change/commit-id ?id] 
              [?change :git.change/file      ?file]
              [(.startsWith ^String ?file ?path)]]
-     (d/db conn) path))
+     (d/db conn) path user repo))
 
 (defn file-activity [user repo path conn]
   "The number of times each file within a path has been modified"
