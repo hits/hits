@@ -14,13 +14,7 @@
 (defn do-repos! [conn repos]
   (apply concat (map (fn [[name proj]] (add-repo-to-db conn name proj)) repos)))
 
-<<<<<<< HEAD
 (defn setup-datomic! [uri]
-=======
-(defn setup_datomic!
-  [repos]
-  (let [uri "datomic:mem://hits-live"]
->>>>>>> 43e5e95954bfe3c65bdb2706a69202d476a1caef
     (d/create-database uri)
     (let [conn (d/connect uri)]
       @(d/transact conn git/schema)
@@ -35,7 +29,7 @@
 (noir/defpage "/" []
   (hicc/html [:h1 "Welcome to HITS (Hands in the Soup)"]
              [:p [:b "Available repos:"]]
-             (map (fn [[name repo]] 
+             (map (fn [[name repo]]
                     [:p (page/link-to (link-for name repo)
                                       (str name "/" repo))]) (current-repos conn))
              [:p "Or visit /owner/repo of your choice"]))
