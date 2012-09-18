@@ -13,7 +13,7 @@
    ["hits" "hits"]])
 
 (defn do-repos! [conn repos]
-  (apply concat (map (fn [[name proj]] (add-repo-to-db conn name proj)) repos)))
+  (apply concat (map (fn [[name proj]] (add-repo-to-db! conn name proj)) repos)))
 
 (defn setup-datomic! [uri]
     (d/create-database uri)
@@ -37,7 +37,7 @@
 
 (noir/defpage "/:name/:repo/" {:keys [name repo]}
   (when (not (contains? (current-repos (d/db conn)) [name repo]))
-    (datomic.common/await-derefs (add-repo-to-db conn name repo)))
+    (datomic.common/await-derefs (add-repo-to-db! conn name repo)))
   (hicc/html [:h1 (format "%s/%s" name repo)]
              (map (fn [[author counts]] [:pre author " " counts])
                   (reverse (sort-by second (author-activity name repo "" (d/db conn)))))))

@@ -95,7 +95,7 @@
    :db/ident (parse/str-identifier user repo),
    :db.install/_partition :db.part/db})
 
-(defn add-repo-to-db [conn user repo] ; this function is idempotent
+(defn add-repo-to-db! [conn user repo] ; this function is idempotent
   "Add a new repository to database. This function should only be called once."
   (when-not (contains?  (current-repos (d/db conn)) [user repo] ) 
     (parse/clone-repo user repo) ; idempotent

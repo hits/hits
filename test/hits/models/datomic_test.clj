@@ -36,14 +36,14 @@
 (d/create-database uri)
 (def conn (d/connect uri))
 @(d/transact conn git/schema)
-(datomic.common/await-derefs (add-repo-to-db conn "hits" "hits-test"))
-(datomic.common/await-derefs (add-repo-to-db conn "hits" "hits-test2"))
+(datomic.common/await-derefs (add-repo-to-db! conn "hits" "hits-test"))
+(datomic.common/await-derefs (add-repo-to-db! conn "hits" "hits-test2"))
 
-(deftest test-add-repo-to-db-idempotent
-  (datomic.common/await-derefs (add-repo-to-db conn "hits" "hits-test"))
-  (datomic.common/await-derefs (add-repo-to-db conn "hits" "hits-test"))
+(deftest test-add-repo-to-db!-idempotent
+  (datomic.common/await-derefs (add-repo-to-db! conn "hits" "hits-test"))
+  (datomic.common/await-derefs (add-repo-to-db! conn "hits" "hits-test"))
   (is (= nil
-         (add-repo-to-db conn "hits" "hits-test"))))
+         (add-repo-to-db! conn "hits" "hits-test"))))
 
 (deftest test-query-subjects
   (is (contains? (d/q '[:find ?sub :where [?c :git.log/subject ?sub]] (d/db conn)) ["First commit"])))
