@@ -1,7 +1,8 @@
 (ns hits.web-test
+  (:use hits.models.datomic)
+  (:use hits.web.middleware)
   (:require [noir.core :as noir])
   (:require [datomic.api :only [q db] :as d])
-  (:use hits.models.datomic)
   (:require [hiccup.core :as hicc])
   (:require [hits.models.git-schema :only [schema] :as git] )
   (:require [hiccup.page-helpers :as page])
@@ -34,7 +35,7 @@
                                       (str name "/" repo))]) (current-repos conn))
              [:p "Or visit /owner/repo of your choice"]))
 
-(noir/defpage "/:name/:repo" {:keys [name repo]}
+(noir/defpage "/:name/:repo/" {:keys [name repo]}
   (when (not (contains? (current-repos conn) [name repo]))
     (datomic.common/await-derefs (add-repo-to-db conn name repo)))
   (hicc/html [:h1 (format "%s/%s" name repo)]
@@ -43,5 +44,6 @@
 
 ;; run (web-main) at REPL to launch test server:
 (defn web-main []
+  (server/add-middleware wrap-slash)
   (let [port (Integer. (get (System/getenv) "PORT" "8080"))]
     (server/start port)))
