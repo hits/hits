@@ -47,3 +47,5 @@
   (server/add-middleware wrap-slash)
   (let [port (Integer. (get (System/getenv) "PORT" "8080"))]
     (server/start port)))
+(defn -main []
+  (web-main))

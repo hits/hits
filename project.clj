@@ -1,5 +1,5 @@
 (defproject hits "0.0.1"
-  :main hits.core
+  :main hits.web-test
   :dependencies
   [[org.clojure/clojure "1.4.0"]
    [compojure "0.6.4"]
