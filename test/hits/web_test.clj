@@ -13,7 +13,7 @@
    ["hits" "hits"]])
 
 (defn do-repos! [conn repos]
-  (apply concat (map (fn [[name proj]] (add-repo-to-db conn name proj)) repos)))
+  (apply concat (map (fn [[name proj]] (add-repo-to-db! conn name proj)) repos)))
 
 (defn setup-datomic! [uri]
     (d/create-database uri)
@@ -32,15 +32,15 @@
              [:p [:b "Available repos:"]]
              (map (fn [[name repo]]
                     [:p (page/link-to (link-for name repo)
-                                      (str name "/" repo))]) (current-repos conn))
+                                      (str name "/" repo))]) (current-repos (d/db conn)))
              [:p "Or visit /owner/repo of your choice"]))
 
 (noir/defpage "/:name/:repo/" {:keys [name repo]}
-  (when (not (contains? (current-repos conn) [name repo]))
-    (datomic.common/await-derefs (add-repo-to-db conn name repo)))
+  (when (not (contains? (current-repos (d/db conn)) [name repo]))
+    (datomic.common/await-derefs (add-repo-to-db! conn name repo)))
   (hicc/html [:h1 (format "%s/%s" name repo)]
              (map (fn [[author counts]] [:pre author " " counts])
-                  (reverse (sort-by second (author-activity name repo "" conn))))))
+                  (reverse (sort-by second (author-activity name repo "" (d/db conn)))))))
 
 ;; run (web-main) at REPL to launch test server:
 (defn web-main []
