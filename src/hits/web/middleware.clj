@@ -14,7 +14,7 @@
 ;(defn wrap-slash [handler]
 ;  (fn [{:keys [uri] :as req}]
 ;    (if (.endsWith uri "/")
-;      (handler (assoc req 
-;                      :uri (.substring uri 
+;      (handler (assoc req
+;                      :uri (.substring uri
 ;                                       0 (dec (count uri)))))
 ;      (handler req))))
