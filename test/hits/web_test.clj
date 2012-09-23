@@ -4,8 +4,9 @@
   (:require [noir.core :as noir])
   (:require [datomic.api :only [q db] :as d])
   (:require [hiccup.core :as hicc])
-  (:require [hits.models.git-schema :only [schema] :as git] )
-  (:require [hiccup.page-helpers :as page])
+  (:require [hiccup.form-helpers :as form])
+  (:require [hits.models.git-schema :only [schema] :as git])
+  (:require [hiccup.page-helpers :only [link-to] :as page])
   (:require [noir.server :as server]))
 
 (def start-repos
@@ -47,5 +48,6 @@
   (server/add-middleware wrap-slash)
   (let [port (Integer. (get (System/getenv) "PORT" "8080"))]
     (server/start port)))
+
 (defn -main []
   (web-main))
