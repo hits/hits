@@ -5,7 +5,8 @@
   ;; From http://stackoverflow.com/questions/12469914/
   ;; how-to-do-http-302-redirects-with-noir-web-framework"
   (fn [{:keys [uri] :as req}]
-    (if (.endsWith uri "/")
-      (handler req)
-      (resp/redirect (str uri "/")))))
-
+    (if (and (.endsWith uri "/") (not= uri "/"))
+      (handler (assoc req
+                      :uri (.substring uri
+                             0 (dec (count uri)))))
+      (handler req))))
