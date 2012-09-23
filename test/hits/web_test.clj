@@ -26,7 +26,7 @@
             (do-repos! c start-repos)
             c))
 
-(defn link-for [name repo] (format "/%s/%s/" name repo))
+(defn link-for [name repo] (format "/%s/%s" name repo))
 
 (noir/defpage "/" []
   (hicc/html [:h1 "Welcome to HITS (Hands in the Soup)"]
@@ -36,7 +36,7 @@
                                       (str name "/" repo))]) (current-repos (d/db conn)))
              [:p "Or visit /owner/repo of your choice"]))
 
-(noir/defpage "/:name/:repo/" {:keys [name repo]}
+(noir/defpage "/:name/:repo" {:keys [name repo]}
   (when (not (contains? (current-repos (d/db conn)) [name repo]))
     (datomic.common/await-derefs (add-repo-to-db! conn name repo)))
   (hicc/html [:h1 (format "%s/%s" name repo)]
