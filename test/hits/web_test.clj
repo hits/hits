@@ -7,6 +7,7 @@
   (:require [hiccup.form-helpers :as form])
   (:require [hits.models.git-schema :only [schema] :as git])
   (:require [hiccup.page-helpers :only [link-to] :as page])
+  (:require [noir.response :as resp])
   (:require [noir.server :as server]))
 
 (def start-repos
@@ -27,6 +28,20 @@
             c))
 
 (defn link-for [name repo] (format "/%s/%s" name repo))
+
+(noir/defpage "/author-data" []
+  (hicc/html
+    (form/form-to [:post "/author-data"]
+                  (form/label "user" "Owner: ")
+                  (form/text-field "user" "")
+                  (form/label "repo" "Repo: ")
+                  (form/text-field "repo" "")
+                  (form/submit-button "Go"))))
+
+(noir/defpage [:post "/author-data"] {:keys [user repo]}
+  (when (not (contains? (current-repos (d/db conn)) [user repo]))
+    (datomic.common/await-derefs (add-repo-to-db! conn user repo)))
+  (resp/json  (author-activity user repo "" (d/db conn))))
 
 (noir/defpage "/" []
   (hicc/html [:h1 "Welcome to HITS (Hands in the Soup)"]
