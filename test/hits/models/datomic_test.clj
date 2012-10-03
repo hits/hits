@@ -96,11 +96,21 @@
   (is (= (current-repos (d/db conn))
          #{["hits" "hits-test"] ["hits" "hits-test2"]})))
 
-(comment (clojure.pprint/pprint (seq (d/q 
-                      '[:find ?file  
-                        :where [?c :git.log/id ?id] 
-                               [?c :git.log/author-name "Matthew Rocklin"] 
-                               [?change :git.change/commit-id ?id]
-                               [?change :git.change/file      ?file]
-                               [?change :git.change/action    "A"]]
-                            (d/db conn)))))
+(deftest test-file-activity-tree
+  (is (= (file-activity-tree [["dir/file.txt" "bob" "1234"]
+                              ["dir/file.txt" "alice" "1235"]
+                              ["readme" "alice" "4852"]
+                              ["dir/src.clj" "bob" "9876"]])
+  {"file" [] :authors {"alice" 2 "bob" 2}
+     :children [{"file" ["readme"] :authors {"alice" 1} :children []}
+        {"file" ["dir"]    :authors {"alice" 1 "bob" 2}
+           :children [{"file" ["dir" "file.txt"] :authors {"alice" 1 "bob" 1}
+                         :children []}
+                      {"file" ["dir" "src.clj"]  :authors {"bob" 1}
+                         :children []}]}]})))
+
+(defn abs [x]
+  (if (> x 0) x (- x)))
+(deftest test-repeat-inf
+  (is (= (repeat-inf (fn [x] (-> x dec abs)) #{5, 8})
+         #{0, 1, 2, 3, 4, 5, 6, 7, 8})))
