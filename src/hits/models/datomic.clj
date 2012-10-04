@@ -143,6 +143,11 @@
   "The number of times each file within a path has been modified"
   (count-groups (activity user repo path database) 0))
 
+
+(defn path-project [path depth]
+  (re-find (re-pattern (clojure.string/join "/" (take depth (repeat "\\w+"))))
+           path))
+
 (defn file-activity-depth [user repo path depth database]
   "The number of times each file within a path has been modified"
   (count-groups (map (fn [[file, author, id]] [(path-project file depth) author id]) 
@@ -160,9 +165,6 @@
                                    [?c :git.log/repo  ?repo ]]
        database))
 
-(defn path-project [path depth]
-  (re-find (re-pattern (clojure.string/join "/" (take depth (repeat "\\w+"))))
-           path))
 
 (defn repeat-inf [f s]
   " Applies a function to elements of a set repeatedly until there is no change "
@@ -173,8 +175,8 @@
         (clojure.set/union union (repeat-inf f new-s)))))
 
 (defn author-counts [aut-ids]
-  "Converts a list of acitivty maps [{:name "joe" :id 1} {:name "sam" :id 2}] 
-   into a map with counts {"joe" 1 "sam" 2}" 
+  "Converts a list of acitivty maps [{:name :joe :id 1} {:name :sam :id 2}] 
+   into a map with counts {:joe 1 :sam 2}" 
   (let [aut-map (group-by :name aut-ids)
         aut-counts (map (fn [[name ids]] [name (count ids)]) 
                         aut-map)]

@@ -95,7 +95,7 @@
 (deftest test-current-repos
   (is (= (current-repos (d/db conn))
          #{["hits" "hits-test"] ["hits" "hits-test2"]})))
-
+(comment
 (deftest test-file-activity-tree
   (is (= (file-activity-tree [["dir/file.txt" "bob" "1234"]
                               ["dir/file.txt" "alice" "1235"]
@@ -107,7 +107,7 @@
            :children [{"file" ["dir" "file.txt"] :authors {"alice" 1 "bob" 1}
                          :children []}
                       {"file" ["dir" "src.clj"]  :authors {"bob" 1}
-                         :children []}]}]})))
+                         :children []}]}]}))))
 
 (defn abs [x]
   (if (> x 0) x (- x)))
