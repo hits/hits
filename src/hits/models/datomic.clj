@@ -171,3 +171,16 @@
     (if (= (count union) (count s))
         union
         (clojure.set/union union (repeat-inf f new-s)))))
+
+(defn author-counts [aut-ids]
+  "Converts a list of acitivty maps [{:name "joe" :id 1} {:name "sam" :id 2}] 
+   into a map with counts {"joe" 1 "sam" 2}" 
+  (let [aut-map (group-by :name aut-ids)
+        aut-counts (map (fn [[name ids]] [name (count ids)]) 
+                        aut-map)]
+    (apply hash-map (flatten aut-counts))))
+
+(defn activity-maps [vals]
+  (update-in (zipmap [:path :name :id] vals)
+             [:path]                        
+             #(clojure.string/split % #"/")))

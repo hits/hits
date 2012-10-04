@@ -114,3 +114,7 @@
 (deftest test-repeat-inf
   (is (= (repeat-inf (fn [x] (-> x dec abs)) #{5, 8})
          #{0, 1, 2, 3, 4, 5, 6, 7, 8})))
+
+(deftest test-author-counts
+  (is (= (author-counts [{:name "A" :id 1} {:name "A" :id 2} {:name "B" :id 3}])
+         {"A" 2 "B" 1})))
