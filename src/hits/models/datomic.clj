@@ -5,6 +5,9 @@
   (:require [clj-time.format :as timef])
   (:require [clj-time.coerce :as timec]))
 
+(defn fmap [f m]
+  (into {} (for [[k v] m] [k (f v)])))
+
 ;; Declarations
 (defn current-repos [database])
 
@@ -119,9 +122,9 @@
 ;; ------------------------------
 ;; Queries 
 ;; ------------------------------
-(defn count-groups [vecs idx]
+(defn count-groups [vecs group-key]
   "Group a seq of vectors by an index and return the counts of each bin"
-  (let [groups (group-by #(nth % idx) vecs)]
+  (let [groups (group-by group-key vecs)]
        (zipmap (keys groups) (map count (vals groups)))))
 
 (defn activity [user repo path database]
@@ -141,7 +144,7 @@
 
 (defn file-activity [user repo path database]
   "The number of times each file within a path has been modified"
-  (count-groups (activity user repo path database) 0))
+  (count-groups (activity user repo path database) first))
 
 
 (defn path-project [path depth]
@@ -152,12 +155,12 @@
   "The number of times each file within a path has been modified"
   (count-groups (map (fn [[file, author, id]] [(path-project file depth) author id]) 
                      (activity user repo path database))
-                0))
+                first))
  
 
 (defn author-activity [user repo path database]
   "The number of times each user has modified a file within a path"
-  (count-groups (activity user repo path database) 1))
+  (count-groups (activity user repo path database) second))
 
 (defn current-repos [database]
   "Returns the owner/repo pairs for which we currently have data"
@@ -192,6 +195,3 @@
 (defn tree-of [root children-of]
   {:file root 
    :children (set (map #(tree-of % children-of) (children-of root)))})
-
-(defn fmap [f m]
-  (into {} (for [[k v] m] [k (f v)])))

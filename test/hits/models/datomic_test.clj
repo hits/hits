@@ -77,7 +77,7 @@
          #{["hits-test"], ["hits-test2"]})))
 
 (deftest test-count-groups
-  (is (= (count-groups [[1 2 3] [2 2 2], [2 1 2]] 2)
+  (is (= (count-groups [[1 2 3] [2 2 2], [2 1 2]] #(nth % 2))
          {2 2, 3 1})))
 
 (deftest test-activity
