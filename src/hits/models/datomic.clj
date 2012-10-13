@@ -190,7 +190,8 @@
              split-path))
 
 (defn tree-of [root children-of]
-  [root (set (map #(tree-of % children-of) (children-of root)))])
+  {:file root 
+   :children (set (map #(tree-of % children-of) (children-of root)))})
 
 (defn fmap [f m]
   (into {} (for [[k v] m] [k (f v)])))

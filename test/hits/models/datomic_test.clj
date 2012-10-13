@@ -132,7 +132,7 @@
             ["F" "F.clj"]])
 (deftest test-tree-of
   (is (= (tree-of ["A"] (fmap set (group-by drop-last files)) )
-         [["A"] #{[["A" "B.clj"] #{}]
-                  [["A" "C.clj"] #{}]
-                  [["A" "D"    ] #{[["A" "D" "E.clj"] #{}]}]}
-          ])))
+         {:file ["A"] :children #{{:file ["A" "B.clj"] :children #{}}
+                                  {:file ["A" "C.clj"] :children #{}}
+                                  {:file ["A" "D"    ] :children #{
+                                     {:file ["A" "D" "E.clj"] :children #{}}}}}})))
