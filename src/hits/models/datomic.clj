@@ -213,4 +213,13 @@
       (let [new-children (set (map #(tree-contributions % conts) (tree :children)))
             sum-conts (apply merge-with + (map :contributions new-children))]
         {:path (tree :path) :children new-children :contributions sum-conts})))
-        
+
+(defn tree-query [user repo path db]
+  (let [records  (activity user repo path db)
+        recmaps  (map activity-maps records)
+        conts    (contributions recmaps)
+        files    (repeat-inf drop-last (map :path recmaps))
+        children (fmap set (group-by drop-last files))
+        root     (split-path path)
+        tree     (tree-of root children)]
+    (tree-contributions tree conts)))
