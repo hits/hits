@@ -200,3 +200,16 @@
   " Given a map of records (as from activity-maps)
     Give a map mapping from file -> {:name num-commits}" 
   (fmap #(count-groups % :name) (group-by :file records)))
+
+(defn tree-contributions [tree conts]
+  " Add :contribution fields to the tree 
+   inputs - 
+     tree  - root of the tree like {:file [path] :children #{...}}
+     conts - contributions map like {path {name count name count }}
+   outputs - 
+     A tree like {:name [path] :contributions {name count} :children #{...}}"
+  (if (contains? conts (:file tree))
+      (assoc tree :contributions (conts (tree :file)))
+      (let [new-children (set (map #(tree-contributions % conts) (tree :children)))
+            sum-conts (apply merge-with + (map :contributions new-children))]
+        {:file (tree :file) :children new-children :contributions sum-conts})))

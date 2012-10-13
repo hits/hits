@@ -142,3 +142,21 @@
                          {:file :a :name :bob} {:file :b :name :bob}])
          {:a {:joe 2 :bob 1}
           :b {:bob 1}})))
+  
+(deftest test-tree-contributions-simple
+  (is (= (tree-contributions {:file :a :children #{}} {:a {:joe 1 :bob 2}})
+         {:file :a :contributions {:joe 1 :bob 2} :children #{}})))
+
+(deftest test-tree-contributions-moderate
+  (let [tree {:file :a :children #{{:file :b :children #{}}
+                                {:file :c :children #{{:file :e :children #{}}
+                                                      {:file :f :children #{}}}}}}
+       conts {:f {:joe 1 :bob 2} :e {:joe 1} :b {:alice 3}}
+       expected {:file :a :contributions {:joe 2 :bob 2 :alice 3}
+             :children #{{:file :b :contributions {:alice 3} :children #{}}
+                         {:file :c :contributions {:joe 2 :bob 2} 
+                          :children #{{:file :e :contributions {:joe 1}        :children #{}}
+                                      {:file :f :contributions {:joe 1 :bob 2} :children #{}}}}}}]
+
+  (is (= (tree-contributions tree conts)
+         expected))))
