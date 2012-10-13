@@ -183,7 +183,7 @@
   (frequencies (map :name aut-ids)))
 
 (defn split-path [path]
-  (clojure.string/split path #"/"))
+  (clojure.string/split (str "/" path) #"/"))
 
 (defn activity-maps [vals]
   "In:  [dir/file.clj Joe 1234]
@@ -213,3 +213,4 @@
       (let [new-children (set (map #(tree-contributions % conts) (tree :children)))
             sum-conts (apply merge-with + (map :contributions new-children))]
         {:path (tree :path) :children new-children :contributions sum-conts})))
+        
