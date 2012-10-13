@@ -176,13 +176,21 @@
 
 (defn author-counts [aut-ids]
   "Converts a list of acitivty maps [{:name :joe :id 1} {:name :sam :id 2}] 
-   into a map with counts {:joe 1 :sam 2}" 
-  (let [aut-map (group-by :name aut-ids)
-        aut-counts (map (fn [[name ids]] [name (count ids)]) 
-                        aut-map)]
-    (apply hash-map (flatten aut-counts))))
+   into a map with counts {:joe 1 :sam 2}"
+  (frequencies (map :name aut-ids)))
+
+(defn split-path [path]
+  (clojure.string/split path #"/"))
 
 (defn activity-maps [vals]
+  "In:  [dir/file.clj Joe 1234]
+   Out: {:path [dir file.clj] :name Joe :id 1234}"
   (update-in (zipmap [:path :name :id] vals)
-             [:path]                        
-             #(clojure.string/split % #"/")))
+             [:path]               
+             split-path))
+
+(defn tree-of [root children-of]
+  [root (set (map #(tree-of % children-of) (children-of root)))])
+
+(defn fmap [f m]
+  (into {} (for [[k v] m] [k (f v)])))

@@ -118,3 +118,21 @@
 (deftest test-author-counts
   (is (= (author-counts [{:name "A" :id 1} {:name "A" :id 2} {:name "B" :id 3}])
          {"A" 2 "B" 1})))
+
+(deftest test-split-path
+  (is (= (split-path "A/B.py")
+         ["A" "B.py"])))
+
+(deftest test-activity-maps
+  (is (=  (split-path "dir/file.clj")
+          ["dir" "file.clj"])))
+
+(def files [["A" "B.clj"] ["A" "C.clj"] 
+            ["A" "D"] ["A" "D" "E.clj"]
+            ["F" "F.clj"]])
+(deftest test-tree-of
+  (is (= (tree-of ["A"] (fmap set (group-by drop-last files)) )
+         [["A"] #{[["A" "B.clj"] #{}]
+                  [["A" "C.clj"] #{}]
+                  [["A" "D"    ] #{[["A" "D" "E.clj"] #{}]}]}
+          ])))
