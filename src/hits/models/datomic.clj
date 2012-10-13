@@ -5,6 +5,9 @@
   (:require [clj-time.format :as timef])
   (:require [clj-time.coerce :as timec]))
 
+(defn fmap [f m]
+  (into {} (for [[k v] m] [k (f v)])))
+
 ;; Declarations
 (defn current-repos [database])
 
@@ -119,9 +122,9 @@
 ;; ------------------------------
 ;; Queries 
 ;; ------------------------------
-(defn count-groups [vecs idx]
+(defn count-groups [vecs group-key]
   "Group a seq of vectors by an index and return the counts of each bin"
-  (let [groups (group-by #(nth % idx) vecs)]
+  (let [groups (group-by group-key vecs)]
        (zipmap (keys groups) (map count (vals groups)))))
 
 (defn activity [user repo path database]
@@ -141,14 +144,82 @@
 
 (defn file-activity [user repo path database]
   "The number of times each file within a path has been modified"
-  (count-groups (activity user repo path database) 0))
+  (count-groups (activity user repo path database) first))
+
+
+(defn path-project [path depth]
+  (re-find (re-pattern (clojure.string/join "/" (take depth (repeat "\\w+"))))
+           path))
+
+(defn file-activity-depth [user repo path depth database]
+  "The number of times each file within a path has been modified"
+  (count-groups (map (fn [[file, author, id]] [(path-project file depth) author id]) 
+                     (activity user repo path database))
+                first))
+ 
 
 (defn author-activity [user repo path database]
   "The number of times each user has modified a file within a path"
-  (count-groups (activity user repo path database) 1))
+  (count-groups (activity user repo path database) second))
 
 (defn current-repos [database]
   "Returns the owner/repo pairs for which we currently have data"
   (d/q `[:find ?owner ?repo :where [?c :git.log/owner ?owner]
                                    [?c :git.log/repo  ?repo ]]
        database))
+
+
+(defn repeat-inf [f s]
+  " Applies a function to elements of a set repeatedly until there is no change "
+  (let [new-s (set (map f s))
+        union (clojure.set/union s new-s)]
+    (if (= (count union) (count s))
+        union
+        (clojure.set/union union (repeat-inf f new-s)))))
+
+(defn author-counts [aut-ids]
+  "Converts a list of acitivty maps [{:name :joe :id 1} {:name :sam :id 2}] 
+   into a map with counts {:joe 1 :sam 2}"
+  (frequencies (map :name aut-ids)))
+
+(defn split-path [path]
+  (clojure.string/split (str "/" path) #"/"))
+
+(defn activity-maps [vals]
+  "In:  [dir/file.clj Joe 1234]
+   Out: {:path [dir file.clj] :name Joe :id 1234}"
+  (update-in (zipmap [:path :name :id] vals)
+             [:path]               
+             split-path))
+
+(defn tree-of [root children-of]
+  {:path root 
+   :children (set (map #(tree-of % children-of) (children-of root)))})
+
+(defn contributions [records]
+  " Given a map of records (as from activity-maps)
+    Give a map mapping from file -> {:name num-commits}" 
+  (fmap #(count-groups % :name) (group-by :path records)))
+
+(defn tree-contributions [tree conts]
+  " Add :contribution fields to the tree 
+   inputs - 
+     tree  - root of the tree like {:path [path] :children #{...}}
+     conts - contributions map like {path {name count name count }}
+   outputs - 
+     A tree like {:name [path] :contributions {name count} :children #{...}}"
+  (if (contains? conts (:path tree))
+      (assoc tree :contributions (conts (tree :path)))
+      (let [new-children (set (map #(tree-contributions % conts) (tree :children)))
+            sum-conts (apply merge-with + (map :contributions new-children))]
+        {:path (tree :path) :children new-children :contributions sum-conts})))
+
+(defn tree-query [user repo path db]
+  (let [records  (activity user repo path db)
+        recmaps  (map activity-maps records)
+        conts    (contributions recmaps)
+        files    (repeat-inf drop-last (map :path recmaps))
+        children (fmap set (group-by drop-last files))
+        root     (split-path path)
+        tree     (tree-of root children)]
+    (tree-contributions tree conts)))

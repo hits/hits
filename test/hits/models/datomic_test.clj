@@ -77,7 +77,7 @@
          #{["hits-test"], ["hits-test2"]})))
 
 (deftest test-count-groups
-  (is (= (count-groups [[1 2 3] [2 2 2], [2 1 2]] 2)
+  (is (= (count-groups [[1 2 3] [2 2 2], [2 1 2]] #(nth % 2))
          {2 2, 3 1})))
 
 (deftest test-activity
@@ -95,12 +95,68 @@
 (deftest test-current-repos
   (is (= (current-repos (d/db conn))
          #{["hits" "hits-test"] ["hits" "hits-test2"]})))
+(comment
+(deftest test-file-activity-tree
+  (is (= (file-activity-tree [["dir/file.txt" "bob" "1234"]
+                              ["dir/file.txt" "alice" "1235"]
+                              ["readme" "alice" "4852"]
+                              ["dir/src.clj" "bob" "9876"]])
+  {"file" [] :authors {"alice" 2 "bob" 2}
+     :children [{"file" ["readme"] :authors {"alice" 1} :children []}
+        {"file" ["dir"]    :authors {"alice" 1 "bob" 2}
+           :children [{"file" ["dir" "file.txt"] :authors {"alice" 1 "bob" 1}
+                         :children []}
+                      {"file" ["dir" "src.clj"]  :authors {"bob" 1}
+                         :children []}]}]}))))
 
-(comment (clojure.pprint/pprint (seq (d/q 
-                      '[:find ?file  
-                        :where [?c :git.log/id ?id] 
-                               [?c :git.log/author-name "Matthew Rocklin"] 
-                               [?change :git.change/commit-id ?id]
-                               [?change :git.change/file      ?file]
-                               [?change :git.change/action    "A"]]
-                            (d/db conn)))))
+(defn abs [x]
+  (if (> x 0) x (- x)))
+(deftest test-repeat-inf
+  (is (= (repeat-inf (fn [x] (-> x dec abs)) #{5, 8})
+         #{0, 1, 2, 3, 4, 5, 6, 7, 8})))
+
+(deftest test-author-counts
+  (is (= (author-counts [{:name "A" :id 1} {:name "A" :id 2} {:name "B" :id 3}])
+         {"A" 2 "B" 1})))
+
+(deftest test-split-path
+  (is (= (split-path "A/B.py")
+         ["" "A" "B.py"])))
+
+(deftest test-activity-maps
+  (is (=  (activity-maps ["dir/file.clj" :joe 1234])
+          {:path ["" "dir" "file.clj"] :name :joe :id 1234})))
+
+(def files [["A" "B.clj"] ["A" "C.clj"] 
+            ["A" "D"] ["A" "D" "E.clj"]
+            ["F" "F.clj"]])
+(deftest test-tree-of
+  (is (= (tree-of ["A"] (fmap set (group-by drop-last files)) )
+         {:path ["A"] :children #{{:path ["A" "B.clj"] :children #{}}
+                                  {:path ["A" "C.clj"] :children #{}}
+                                  {:path ["A" "D"    ] :children #{
+                                     {:path ["A" "D" "E.clj"] :children #{}}}}}})))
+
+(deftest test-contributions
+  (is (= (contributions [{:path :a :name :joe} {:path :a :name :joe} 
+                         {:path :a :name :bob} {:path :b :name :bob}])
+         {:a {:joe 2 :bob 1}
+          :b {:bob 1}})))
+  
+(deftest test-tree-contributions-simple
+  (is (= (tree-contributions {:path :a :children #{}} {:a {:joe 1 :bob 2}})
+         {:path :a :contributions {:joe 1 :bob 2} :children #{}})))
+
+(deftest test-tree-contributions-moderate
+  (let [tree {:path :a :children #{{:path :b :children #{}}
+                                {:path :c :children #{{:path :e :children #{}}
+                                                      {:path :f :children #{}}}}}}
+       conts {:f {:joe 1 :bob 2} :e {:joe 1} :b {:alice 3}}
+       expected {:path :a :contributions {:joe 2 :bob 2 :alice 3}
+             :children #{{:path :b :contributions {:alice 3} :children #{}}
+                         {:path :c :contributions {:joe 2 :bob 2} 
+                          :children #{{:path :e :contributions {:joe 1}        :children #{}}
+                                      {:path :f :contributions {:joe 1 :bob 2} :children #{}}}}}}]
+
+  (is (= (tree-contributions tree conts)
+         expected))))

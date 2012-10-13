@@ -29,19 +29,23 @@
 
 (defn link-for [name repo] (format "/%s/%s" name repo))
 
-(noir/defpage "/author-data" []
+(noir/defpage "/tree-query" []
   (hicc/html
-    (form/form-to [:post "/author-data"]
+    (form/form-to [:post "/tree-query"]
                   (form/label "user" "Owner: ")
                   (form/text-field "user" "")
                   (form/label "repo" "Repo: ")
                   (form/text-field "repo" "")
+                  (form/label "path" "Path: ")
+                  (form/text-field "path" "")
                   (form/submit-button "Go"))))
 
-(noir/defpage [:post "/author-data"] {:keys [user repo]}
+(noir/defpage [:post "/tree-query"] {:keys [user repo path]}
   (when (not (contains? (current-repos (d/db conn)) [user repo]))
     (datomic.common/await-derefs (add-repo-to-db! conn user repo)))
-  (resp/json  (author-activity user repo "" (d/db conn))))
+  (let [result (tree-query user repo path (d/db conn))]
+    ;(clojure.pprint/pprint result)
+    (resp/json result)))
 
 (noir/defpage "/" []
   (hicc/html [:h1 "Welcome to HITS (Hands in the Soup)"]
