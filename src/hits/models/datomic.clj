@@ -195,3 +195,8 @@
 (defn tree-of [root children-of]
   {:file root 
    :children (set (map #(tree-of % children-of) (children-of root)))})
+
+(defn contributions [records]
+  " Given a map of records (as from activity-maps)
+    Give a map mapping from file -> {:name num-commits}" 
+  (fmap #(count-groups % :name) (group-by :file records)))

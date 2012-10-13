@@ -136,3 +136,9 @@
                                   {:file ["A" "C.clj"] :children #{}}
                                   {:file ["A" "D"    ] :children #{
                                      {:file ["A" "D" "E.clj"] :children #{}}}}}})))
+
+(deftest test-contributions
+  (is (= (contributions [{:file :a :name :joe} {:file :a :name :joe} 
+                         {:file :a :name :bob} {:file :b :name :bob}])
+         {:a {:joe 2 :bob 1}
+          :b {:bob 1}})))
