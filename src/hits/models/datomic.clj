@@ -193,23 +193,23 @@
              split-path))
 
 (defn tree-of [root children-of]
-  {:file root 
+  {:path root 
    :children (set (map #(tree-of % children-of) (children-of root)))})
 
 (defn contributions [records]
   " Given a map of records (as from activity-maps)
     Give a map mapping from file -> {:name num-commits}" 
-  (fmap #(count-groups % :name) (group-by :file records)))
+  (fmap #(count-groups % :name) (group-by :path records)))
 
 (defn tree-contributions [tree conts]
   " Add :contribution fields to the tree 
    inputs - 
-     tree  - root of the tree like {:file [path] :children #{...}}
+     tree  - root of the tree like {:path [path] :children #{...}}
      conts - contributions map like {path {name count name count }}
    outputs - 
      A tree like {:name [path] :contributions {name count} :children #{...}}"
-  (if (contains? conts (:file tree))
-      (assoc tree :contributions (conts (tree :file)))
+  (if (contains? conts (:path tree))
+      (assoc tree :contributions (conts (tree :path)))
       (let [new-children (set (map #(tree-contributions % conts) (tree :children)))
             sum-conts (apply merge-with + (map :contributions new-children))]
-        {:file (tree :file) :children new-children :contributions sum-conts})))
+        {:path (tree :path) :children new-children :contributions sum-conts})))
